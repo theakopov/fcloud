@@ -1,0 +1,28 @@
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "fcloud"
+version = "0.9.0"
+description = "Fcloud is a simple utility that makes it easy to work with the cloud."
+authors = ["artem <theakopov@proton.me>"]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+art = "^6.1"
+dropbox = "^11.36.2"
+fire = "^0.5.0"
+terminal-animation = "^0.6"
+prettytable = "^3.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+mkdocs-gallery = "^0.10.1"
+mkdocs = "^1.5.3"
+
+[tool.setuptools.package-data]
+'fcloud' = ['.conf']
+
+[tool.poetry.scripts]
+fcloud = "fcloud.main:main"

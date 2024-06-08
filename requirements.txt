@@ -1,0 +1,5 @@
+fire>=0.5.0
+dropbox>=11.36.2
+art>=6.1
+terminal-animation>=0.6
+prettytable>=3.9.0

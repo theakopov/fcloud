@@ -1,0 +1,23 @@
+site_name: Fcloud project
+theme: 
+    name: material
+    font:
+      text: Ubuntu
+      code: Ubuntu Mono
+site_url: http://fcloud.tech/docs/
+nav:
+  - Overview:
+    - Home: index.md
+    - Why fcloud: about.md
+    - Installation: installation.md
+  - Usage:
+    - Base Usage: usage/base.md
+    - Commands: usage/commands.md
+    - Сonfiguration: usage/configuration.md
+  - Clouds:
+    - Dropbox:
+      - Connect: clouds/dropbox/connect.md
+      - Troubleshooting: clouds/dropbox/errors.md
+
+markdown_extensions:
+  - admonition
