@@ -5,6 +5,7 @@
 **Fcloud is a simple utility that makes it easy to work with the cloud**
 ---
 
+<img src="https://fcloud.tech/files/workexample.gif" alt="Fcloud in action" width="100%"/>
 
 ## Why?
 In the classic sense, cloud storage works on a *file-to-cloud* basis. They represent a separate system where your files are stored. </br></br>*Fcloud* offers a new approach. Fcloud integrates into the system and becomes one with your file system. When working with files, **the file structure and file names are preserved**.
@@ -12,7 +13,10 @@ In the classic sense, cloud storage works on a *file-to-cloud* basis. They repre
 ## Installation
 
 You can download the project using *pipx*:
-  - `pipx install git+https://github.com/theakopov/fcloud` - install source<br>
+```bash
+pipx install git+https://github.com/theakopov/fcloud
+```
+
 > First, it must be installed on your system - [https://pipx.pypa.io/stable/installation/](https://pipx.pypa.io/stable/installation/)
 
 
