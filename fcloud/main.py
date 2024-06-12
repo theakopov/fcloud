@@ -23,9 +23,11 @@ def main():
         tprint("FCLOUD")
     elif sys.argv[1] == "config":
         Fire(Config(available_clouds, path), sys.argv[2:], "fcloud config")
+    elif "--help" in sys.argv:
+        Fire(Fcloud, name="fcloud")
     else:
         config = read_config(available_clouds, path)
-        driver = Drivers[config.service.lower()].value
+        driver = Drivers[config.service].value
         cli = Fcloud(
             auth=config.auth,
             main_folder=config.main_folder,

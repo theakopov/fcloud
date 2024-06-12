@@ -25,7 +25,7 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
 
     cloud = get_config_data(
         "FCLOUD", "service", error=ConfigError.service_error, config=config
-    )
+    ).lower()
     if cloud not in available_clouds:
         title, message = DriverError.driver_error
         echo_error((title, message.format(cloud)))
