@@ -80,7 +80,7 @@ class DropboxCloud(CloudProtocol):
         except Exception as er:
             if catch_unknown:
                 title, message = DropboxError.uknown_error
-                DropboxException((title.format(er), message.format(er)))
+                raise DropboxException((title.format(er), message.format(er)))
             raise
 
     @animation("Downloading")
