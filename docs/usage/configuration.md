@@ -6,7 +6,7 @@
 
 You can work with the configuration file in two methods:
 
-1. You can get information about where it is located by using `fcloud config path`.
+1. You can get information about where it is located using `fcloud config path` or see the contents using `fcloud config read`.
 
 2. Using high-level functions in the `fcloud config` command group
 
@@ -36,21 +36,21 @@ Fcloud provides the following commands for working with configuration files:
 * `set-cfl-ex`
 * `set-parametr`
 
-### set-cloud 
+### fcloud config set-cloud 
 > Specifies the name of the service in the configuration file whose driver is to be used
 
 *Arguments:*
 
 `-n --name` - Service name
 
-### set-main-folder 
+### fcloud config set-main-folder 
 > Specifies the path to the folder where fcloud will save all the files you choose to upload
 
 *Arguments:*
 
 `-p --path` - Cloud folder path
 
-### set-cfl-ex 
+### fcloud config set-cfl-ex 
 > Specifies which extension to assign to CFL files (files uploaded to the cloud)
 
 *Arguments:*
@@ -58,7 +58,7 @@ Fcloud provides the following commands for working with configuration files:
 `-e --extension` - Extension. If you don't want fcloud to change file names after uploading, leave this field blank
 
 
-### set-parametr
+### fcloud config set-parametr
 > Specifies which extension to assign to CFL files (files uploaded to the cloud)
 
 *Arguments:*
@@ -73,3 +73,9 @@ Fcloud provides the following commands for working with configuration files:
 
     fcloud config set-parametr FCLOUD service dropbox
 > This command modifies the FCLOUD section (fcloud general settings) by assigning the values service - dropbox
+
+### fcloud config read
+> Text of the config file
+
+### fcloud config path
+> Path to configuration file

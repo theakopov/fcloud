@@ -43,3 +43,8 @@ class Config:
     def path(self):
         """Config path"""
         return self._path
+
+    def read(self) -> str:
+        """Outputs the text of the config file"""
+        with open(self._path, "r") as config:
+            return config.read()
