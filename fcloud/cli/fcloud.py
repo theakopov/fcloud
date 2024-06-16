@@ -39,6 +39,16 @@ class Fcloud(FcloudProtocol):
         available_clouds: list[str],
         without_driver: bool = False,
     ):
+        """
+        Args:
+            auth (AuthData): Dataclass that stores cloud authorisation data in it
+            main_folder (Path): Folder path for saving files on the cloud
+            service (CloudProtocol): Driver class
+            cfl_extension (str): Default extension for cfl files
+            available_clouds (list[str]): List of supported cloud storage
+            without_driver (bool, optional): Use if necessary to ignore the cloud
+              connection. For example for tests, --help, etc. Defaults to False.
+        """
         self.config = Config(available_clouds)
         try:
             if not without_driver:
@@ -66,13 +76,13 @@ class Fcloud(FcloudProtocol):
     ) -> None:
         """Uploud file to cloud. More: https://fcloud.tech/docs/usage/commands/#add
         Args:
-            -p --path (Path): local path to file
-            -n --near (bool, optional): create cloud file link
+            -p --path (Path): Local path to file
+            -n --near (bool, optional): Create cloud file link
               (cfl) near main file. Defaults to False.
             -f --filename (str, optional): Under which name the
               file will be saved in the cloud. Default is
               the name of the file on the local computer
-            -r --remote_path (Path, optional): the foilder under
+            -r --remote_path (Path, optional): The folder under
               which the file will be uploaded to the server.
               Defaults to main folder from config.
             -w --without_animtaion (bool, Optional): Removes the
