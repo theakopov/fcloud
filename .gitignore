@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+.mypy_cache/
+.pytest_cache/
+.dmypy.json
+dmypy.json
+
+build/
+dist/
+fcloud.egg-info/
+
+.idea/
