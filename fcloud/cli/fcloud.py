@@ -37,10 +37,12 @@ class Fcloud(FcloudProtocol):
         service: CloudProtocol,
         cfl_extension: str,
         available_clouds: list[str],
+        without_driver: bool = False,
     ):
         self.config = Config(available_clouds)
         try:
-            self._driver: CloudProtocol = service(auth, main_folder)
+            if not without_driver:
+                self._driver: CloudProtocol = service(auth, main_folder)
         except DriverException as er:
             echo_error((er.title, er.message))
 

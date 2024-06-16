@@ -29,6 +29,7 @@ class FcloudProtocol(Protocol):
         service: CloudProtocol,
         cfl_extension: str,
         available_clouds: list[str],
+        wihtout_driver: bool = False,
     ):
         pass
 
