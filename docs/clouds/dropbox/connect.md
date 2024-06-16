@@ -38,6 +38,12 @@ Use `fcloud config dropbox get-token` to get the link needed to confirm that the
 
 *Then copy it and paste it into the terminal.*
 
+#### **9. Add a folder to save files to the cloud**
+
+Use `fcloud config set-main-folder /my_folder` to add a folder where by default all files that you will upload using fcloud will be saved.
+
+!!! important
+    Before how to add a folder, create one in your cloud
 
 #### **Done! Now you can make full use of fcloud**
 Learn more about how to use it [here](/docs/usage/base)
