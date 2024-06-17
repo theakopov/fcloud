@@ -31,9 +31,7 @@ utils = Utils(TMP_DIR, TMP_PATH, KEYWORD, CFL_EX, TIMEOUT)
 
 @utils.catch
 def test_add():
-    utils.add_temp_file()
-    add = run_command([KEYWORD, "add", TMP_PATH], timeout=TIMEOUT)
-    assert not add.returncode
+    utils.create_cfl()
 
     with open(TMP_PATH + CFL_EX, "r") as file:
         assert file.read().startswith("%cfl:")
@@ -66,7 +64,7 @@ def test_param_near():
     from time import sleep
 
     sleep(10)
-    utils.add_temp_file("--near")
+    utils.create_cfl("--near")
     assert os.path.isfile(TMP_PATH)
     assert os.path.isfile(TMP_PATH + CFL_EX)
 
@@ -81,7 +79,7 @@ def test_param_near():
 
 @utils.catch
 def test_remove_only_in_cloud():
-    utils.add_temp_file()
+    utils.create_cfl()
 
     utils.remove_temp_file("--only-in-cloud")
     assert os.path.isfile(TMP_PATH + CFL_EX)

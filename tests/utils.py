@@ -63,7 +63,7 @@ class Utils:
 
         return inner
 
-    def add_temp_file(self, *args) -> None:
+    def create_cfl(self, *args) -> None:
         """Adds an empty file to the cloud, cfl will be (TMP_PATH + CFL_EX)"""
         if not os.path.isfile(self.TMP_PATH):
             os.mknod(self.TMP_PATH)
