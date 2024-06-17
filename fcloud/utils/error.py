@@ -24,4 +24,4 @@ def echo_error(
     )
 
     if need_to_quit:
-        sys.exit()
+        sys.exit(1)
