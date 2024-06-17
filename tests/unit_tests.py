@@ -7,28 +7,17 @@ from fcloud.utils.cfl import create_cfl, delete_cfl
 from fcloud.utils.error import echo_error
 from fcloud.utils.other import generate_new_name
 from fcloud.utils.config import get_config_data, edit_config
+from fcloud.cli.groups.config import Config
+
+from .utils import Utils
 
 TMP_DIR = tempfile.gettempdir() + os.sep
 TMP_PATH = TMP_DIR + ".tmp"
 
-
-def create_temp_config():
-    config = dedent("""\
-            [FCLOUD]
-            service = test-service
-            main_folder = /test/folder
-            cfl_extension = .cfl
-
-            [DROPBOX]
-            token =  
-            app_secret =  
-            app_key = 
-            """)
-
-    with open(TMP_PATH, "w") as conf:
-        conf.write(config)
+utils = Utils(TMP_DIR, TMP_PATH)
 
 
+@utils.catch
 def test_cfl_util():
     os.mknod(TMP_PATH)
     create_cfl(TMP_PATH, "filename", Path("/main/folder"), ex := ".ex", False)
@@ -41,6 +30,7 @@ def test_cfl_util():
     assert not os.path.isfile(TMP_PATH + ex)
 
 
+@utils.catch
 def test_cfl_util_near():
     os.mknod(TMP_PATH)
     create_cfl(TMP_PATH, "filename", Path("/main/folder"), ex := ".ex", True)
@@ -49,7 +39,6 @@ def test_cfl_util_near():
     assert os.path.isfile(TMP_PATH)
 
     delete_cfl(TMP_PATH + ex)
-    os.remove(TMP_PATH)
 
 
 def test_echo_error():
@@ -70,8 +59,9 @@ def test_generate_new_name():
     assert result == "t (1)"
 
 
+@utils.catch
 def test_config_utils():
-    create_temp_config()
+    utils.create_temp_config()
     os.environ["FCLOUD_CONFIG_PATH"] = TMP_PATH
 
     service = get_config_data("FCLOUD", "service")
@@ -88,4 +78,35 @@ def test_config_utils():
         flag = True
     assert flag
 
-    os.remove(TMP_PATH)
+
+@utils.catch
+def test_config():
+    config = Config(["some_cloud", "second_cloud"], Path(TMP_PATH))
+    with open(TMP_PATH, "w") as conf:
+        conf.write(
+            content := dedent("""\
+            [FCLOUD]
+            service = some_cloud
+            main_folder = /test
+            cfl_extension = .cfl
+
+            [some_cloud]
+            token = 123456abcdef
+                """)
+        )
+    assert config.read() == content
+
+    config.set_cloud("second_cloud")
+    config.set_main_folder("/films")
+    config.set_cfl_ex(".fcloud")
+
+    assert config.read() == dedent("""\
+            [FCLOUD]
+            service = second_cloud
+            main_folder = /films
+            cfl_extension = .fcloud
+
+            [some_cloud]
+            token = 123456abcdef
+
+            """)
