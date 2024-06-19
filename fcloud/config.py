@@ -2,6 +2,7 @@ import configparser
 import os
 from pathlib import Path
 from typing import Optional
+from typing import NoReturn
 
 from .exceptions.config_errors.base_config_errors import ConfigError
 from .exceptions.drivers_errors.base import DriverError
@@ -11,6 +12,12 @@ from .models.settings.settings import AuthData
 
 from .utils.error import echo_error
 from .utils.config import get_config_data
+
+
+def not_empty(key: str, value: str) -> None | NoReturn:
+    if value == "" or value == ".":
+        title, message = ConfigError.field_emty_error
+        echo_error((title.format(key), message.format(key)))
 
 
 def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Config:
@@ -43,6 +50,14 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
     ).as_posix()
 
     auth_model = AuthData[cloud.lower()].value
+
+    fields = {
+        "service": cloud,
+        "cfl_extension": cfl_extension,
+        "main_folder": main_folder,
+    }
+    for key, value in (fields | dict(cloud_settings)).items():
+        not_empty(key, value)
 
     return Config(
         service=cloud,

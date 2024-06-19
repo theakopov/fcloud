@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 from ..file_errors import FileError
 
 
@@ -25,4 +27,12 @@ class ConfigError(FileError):
     config_not_found = (
         "Can`t find config file",
         ".conf need to be in <programm folder>/fcloud",
+    )
+
+    field_emty_error = (
+        "The required '{}' field is missing",
+        dedent("""\
+        The field required by fcloud is empty.  Use 'fcloud config set-parametr FCLOUD {} <value>' to set the required value. 
+        * Substitute the required value in place of <value>.
+        """),
     )
