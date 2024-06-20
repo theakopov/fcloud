@@ -6,8 +6,8 @@ from textwrap import dedent
 from ...drivers.dropbox.config_error import DropboxConfigError
 from ...exceptions.base_error import FcloudError
 
-from ...models.settings.settings import DropboxAuth
-from ...models.drivers.dropbox_models import TokenData
+from ...drivers.dropbox.models import TokenData
+from ...drivers.dropbox.models import DropboxAuth
 
 from ...utils.config import edit_config
 from ...utils.config import get_config_data

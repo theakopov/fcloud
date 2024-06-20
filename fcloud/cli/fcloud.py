@@ -8,7 +8,7 @@ from prettytable import PrettyTable
 from dropbox.files import FileMetadata
 from dropbox.files import FolderMetadata
 
-from ..models.settings.settings import AuthData
+from ..models.settings import AuthData
 from .protocol import FcloudProtocol
 from .protocol import SomeStr
 

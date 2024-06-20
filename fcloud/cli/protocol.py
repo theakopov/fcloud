@@ -6,7 +6,7 @@ from typing import Protocol
 from typing import TypeVar
 from typing import Optional
 
-from ..models.settings.settings import AuthData
+from ..models.settings import AuthData
 from ..drivers.base import CloudProtocol
 
 # Data received from the user that Fire

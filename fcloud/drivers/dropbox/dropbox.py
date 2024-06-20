@@ -27,7 +27,7 @@ from ...utils.other import generate_new_name
 from ...utils.animations import animation
 
 
-from ...models.settings.settings import DropboxAuth
+from ...models.settings import DropboxAuth
 
 
 class DropboxCloud(CloudProtocol):

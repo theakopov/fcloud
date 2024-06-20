@@ -6,7 +6,7 @@ from art import tprint
 from fire import Fire
 
 from .config import read_config
-from .models.drivers.drivers import Drivers
+from .models.drivers import Drivers
 from .cli.groups.config import Config
 from .cli.fcloud import Fcloud
 

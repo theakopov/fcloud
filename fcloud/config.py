@@ -7,8 +7,8 @@ from typing import NoReturn
 from .exceptions.base_config_errors import ConfigError
 from .exceptions.base_driver_error import DriverError
 
-from .models.settings.settings import Config
-from .models.settings.settings import AuthData
+from .models.settings import Config
+from .models.settings import AuthData
 
 from .utils.error import echo_error
 from .utils.config import get_config_data

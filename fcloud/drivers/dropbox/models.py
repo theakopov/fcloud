@@ -10,3 +10,10 @@ class TokenData:
     scope: str
     uid: int
     account_id: str
+
+
+@dataclass()
+class DropboxAuth:
+    token: str
+    app_secret: str
+    app_key: str

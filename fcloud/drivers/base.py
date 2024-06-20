@@ -2,7 +2,7 @@ from typing import Protocol
 from typing import Optional
 from pathlib import Path
 
-from ..models.settings.settings import AuthData
+from ..models.settings import AuthData
 
 
 class CloudProtocol(Protocol):
