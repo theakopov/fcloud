@@ -3,7 +3,7 @@ import requests
 from os import environ
 from textwrap import dedent
 
-from ...exceptions.config_errors.dropbox_errors import DropboxConfigError
+from ...drivers.dropbox.config_error import DropboxConfigError
 from ...exceptions.base_error import FcloudError
 
 from ...models.settings.settings import DropboxAuth

@@ -1,4 +1,4 @@
-from .base import DriverError
+from ...exceptions.base_driver_error import DriverError
 
 
 class DropboxError(DriverError):

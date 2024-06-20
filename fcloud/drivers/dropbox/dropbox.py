@@ -18,16 +18,16 @@ from stone.backends.python_rsrc.stone_validators import ValidationError
 
 from requests import ConnectionError
 
-from ..exceptions.file_errors import FileError
-from ..exceptions.drivers_errors.dropbox_errors import DropboxError
-from ..exceptions.drivers_errors.drivers_exceptions import DropboxException
-from .base import CloudProtocol
+from ...exceptions.file_errors import FileError
+from .errors import DropboxError
+from ...exceptions.driver_exception import DropboxException
+from ..base import CloudProtocol
 
-from ..utils.other import generate_new_name
-from ..utils.animations import animation
+from ...utils.other import generate_new_name
+from ...utils.animations import animation
 
 
-from ..models.settings.settings import DropboxAuth
+from ...models.settings.settings import DropboxAuth
 
 
 class DropboxCloud(CloudProtocol):

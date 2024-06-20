@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from ..file_errors import FileError
+from .file_errors import FileError
 
 
 class ConfigError(FileError):

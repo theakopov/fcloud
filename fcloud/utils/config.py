@@ -4,7 +4,7 @@ from typing import Optional
 
 from .error import echo_error
 
-from ..exceptions.config_errors.base_config_errors import ConfigError
+from ..exceptions.base_config_errors import ConfigError
 from ..exceptions.base_error import FcloudError
 
 

@@ -18,8 +18,8 @@ from ..utils.cfl import delete_cfl
 from ..utils.cfl import read_cfl
 
 from .groups.config import Config
-from ..exceptions.cfl_errors import CFLError
-from ..exceptions.drivers_errors.drivers_exceptions import DriverException
+from ..exceptions.cfl_error import CFLError
+from ..exceptions.driver_exception import DriverException
 from ..drivers.base import CloudProtocol
 
 

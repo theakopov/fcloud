@@ -5,7 +5,7 @@ from typing import Optional
 from ...utils.config import edit_config
 from ...utils.error import echo_error
 
-from ...exceptions.drivers_errors.base import DriverError
+from ...exceptions.base_driver_error import DriverError
 
 from .dropbox import Dropbox
 
