@@ -2,7 +2,7 @@
 
 <img src=https://img.shields.io/badge/cli-app-blue> <img src=https://img.shields.io/badge/version-0.9.0-orange> <img src=https://img.shields.io/badge/simple-docs-green> <img src=https://img.shields.io/badge/language-python-yellow>
 
-<img src="https://fcloud.tech/files/work_example.gif" alt="Fcloud in action" width="100%">
+<img src="https://fcloud.tech/files/workexample.gif" alt="Fcloud in action" width="100%">
 
 
 **Fcloud is a simple utility that makes it easy to work with the cloud**
