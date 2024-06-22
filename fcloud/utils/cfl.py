@@ -2,9 +2,9 @@ import os
 from pathlib import Path
 
 from .error import echo_error
-from ..exceptions.cfl_error import CFLError
+from ..exceptions.cfl_errors import CFLError
 from ..exceptions.file_errors import FileError
-from ..exceptions.base_error import FcloudError
+from ..exceptions.base_errors import FcloudError
 
 
 def create_cfl(

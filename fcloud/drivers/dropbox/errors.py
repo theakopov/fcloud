@@ -1,4 +1,5 @@
-from ...exceptions.base_driver_error import DriverError
+from ...exceptions.driver_errors import DriverError
+from ...exceptions.driver_exceptions import DriverException
 
 
 class DropboxError(DriverError):
@@ -42,3 +43,7 @@ class DropboxError(DriverError):
         "BadInput Error",
         """Some of the data did not pass the api check. More details: {}""",
     )
+
+
+class DropboxException(DriverException):
+    pass

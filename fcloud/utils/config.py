@@ -4,8 +4,8 @@ from typing import Optional
 
 from .error import echo_error
 
-from ..exceptions.base_config_errors import ConfigError
-from ..exceptions.base_error import FcloudError
+from ..exceptions.config_errors import ConfigError
+from ..exceptions.base_errors import FcloudError
 
 
 def edit_config(section: str, name: str, value: str) -> None:

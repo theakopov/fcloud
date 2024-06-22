@@ -4,7 +4,7 @@ from os import environ
 from textwrap import dedent
 
 from ...drivers.dropbox.config_error import DropboxConfigError
-from ...exceptions.base_error import FcloudError
+from ...exceptions.base_errors import FcloudError
 
 from ...drivers.dropbox.models import TokenData
 from ...drivers.dropbox.models import DropboxAuth

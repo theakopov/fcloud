@@ -1,4 +1,4 @@
-from .base_error import FcloudError
+from .base_errors import FcloudError
 
 
 class DriverError(FcloudError):

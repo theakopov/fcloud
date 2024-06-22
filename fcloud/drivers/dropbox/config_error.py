@@ -1,4 +1,4 @@
-from ...exceptions.base_config_errors import ConfigError
+from ...exceptions.config_errors import ConfigError
 
 
 class DropboxConfigError(ConfigError):

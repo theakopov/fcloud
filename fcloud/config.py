@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Optional
 from typing import NoReturn
 
-from .exceptions.base_config_errors import ConfigError
-from .exceptions.base_driver_error import DriverError
+from .exceptions.config_errors import ConfigError
+from .exceptions.driver_errors import DriverError
 
 from .models.settings import Config
 from .models.settings import AuthData

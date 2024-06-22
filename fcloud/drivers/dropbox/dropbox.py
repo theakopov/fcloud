@@ -19,9 +19,9 @@ from stone.backends.python_rsrc.stone_validators import ValidationError
 from requests import ConnectionError
 
 from ...exceptions.file_errors import FileError
-from .errors import DropboxError
-from ...exceptions.driver_exception import DropboxException
 from ..base import CloudProtocol
+from .errors import DropboxError
+from .errors import DropboxException
 
 from ...utils.other import generate_new_name
 from ...utils.animations import animation
