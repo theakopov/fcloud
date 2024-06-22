@@ -1,0 +1,3 @@
+There are two types of errors in fcloud: Exceptions and Errors.
+*Error - classes that store only the error header and text to display to the user (does not imply `raise`).
+*Exception - classes from BaseException that are called by the driver when an error occurs.
