@@ -26,7 +26,7 @@ class ConfigError(FileError):
 
     config_not_found = (
         "Can`t find config file",
-        ".conf need to be in <programm folder>/fcloud",
+        ".conf need to be in <programm folder>/fcloud or be in the environment variable $FCLOUD_CONFIG_PATH",
     )
 
     field_emty_error = (
