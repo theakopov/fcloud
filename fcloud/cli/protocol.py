@@ -6,8 +6,8 @@ from typing import Protocol
 from typing import TypeVar
 from typing import Optional
 
-from ..models.settings import AuthData
-from ..drivers.base import CloudProtocol
+from ..models.settings import Config as _Config
+
 
 # Data received from the user that Fire
 # can convert to another data type
@@ -24,20 +24,15 @@ class FcloudProtocol(Protocol):
 
     def __init__(
         self,
-        auth: AuthData,
-        main_folder: Path,
-        service: CloudProtocol,
-        cfl_extension: str,
         available_clouds: list[str],
-        wihtout_driver: bool = False,
+        config: Optional[_Config] = None,
+        without_driver: bool = False,
     ):
         """
         Args:
-            auth (AuthData): Dataclass that stores cloud authorisation data in it
-            main_folder (Path): Folder path for saving files on the cloud
-            service (CloudProtocol): Driver class
-            cfl_extension (str): Default extension for cfl files
             available_clouds (list[str]): List of supported cloud storage
+            config (_Config, optional): Dataclass containing: service (driver name),
+              main_folder, cloud authorization data, cfl_extension
             without_driver (bool, optional): Use if necessary to ignore the cloud
               connection. For example for tests, --help, etc. Defaults to False.
         """

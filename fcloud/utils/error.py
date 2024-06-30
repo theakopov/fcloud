@@ -8,6 +8,7 @@ def echo_error(
     error_data: tuple[str, str],
     need_to_quit: bool = True,
     stderr: Optional[TextIO] = sys.stderr,
+    msg_type="Error",
 ) -> NoReturn | None:
     """Function to call an error in the console
 
@@ -19,7 +20,7 @@ def echo_error(
     title, message = error_data
 
     print(
-        f"\r\nError: {title}\r\n{message}",
+        f"\r{msg_type}: {title}\r\n{message}",
         file=stderr,
     )
 

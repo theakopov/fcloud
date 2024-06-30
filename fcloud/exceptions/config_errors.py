@@ -32,7 +32,7 @@ class ConfigError(FileError):
     field_emty_error = (
         "The required '{}' field is missing",
         dedent("""\
-        The field required by fcloud is empty.  Use 'fcloud config set-parametr FCLOUD {} <value>' to set the required value. 
+        The field required by fcloud is empty.  Use 'fcloud config set-parametr {} {} <value>' to set the required value. 
         * Substitute the required value in place of <value>.
         """),
     )

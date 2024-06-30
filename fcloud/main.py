@@ -6,8 +6,6 @@ from art import tprint
 from fire import Fire
 
 from .config import read_config
-from .models.drivers import Drivers
-from .cli.groups.config import Config
 from .cli.fcloud import Fcloud
 
 
@@ -22,18 +20,18 @@ def main():
     if len(sys.argv) == 1:
         tprint("FCLOUD")
         return
-    elif sys.argv[1] == "config":
-        Fire(Config(available_clouds, path), sys.argv[2:], "fcloud config")
 
-    config = read_config(available_clouds, path)
-    driver = Drivers[config.service].value
+    sub_command = sys.argv[1] in ["config", *available_clouds]
+    without_driver = sub_command or "--help" in sys.argv
+    if not without_driver:
+        config = read_config(available_clouds, path)
+    else:
+        config = None
+
     cli = Fcloud(
-        auth=config.auth,
-        main_folder=config.main_folder,
-        service=driver,
-        cfl_extension=config.cfl_extension,
         available_clouds=available_clouds,
-        without_driver="--help" in sys.argv,
+        config=config,
+        without_driver=without_driver,
     )
 
     Fire(cli, name="fcloud")

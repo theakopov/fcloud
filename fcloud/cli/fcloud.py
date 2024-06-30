@@ -9,6 +9,8 @@ from dropbox.files import FileMetadata
 from dropbox.files import FolderMetadata
 
 from ..models.settings import AuthData
+from ..models.drivers import Drivers
+from ..models.settings import Config as _Config
 from .protocol import FcloudProtocol
 from .protocol import SomeStr
 
@@ -18,6 +20,7 @@ from ..utils.cfl import delete_cfl
 from ..utils.cfl import read_cfl
 
 from .groups.config import Config
+from .groups.dropbox import Dropbox
 from ..exceptions.cfl_errors import CFLError
 from ..exceptions.driver_exceptions import DriverException
 from ..drivers.base import CloudProtocol
@@ -32,33 +35,34 @@ class Fcloud(FcloudProtocol):
 
     def __init__(
         self,
-        auth: AuthData,
-        main_folder: Path,
-        service: CloudProtocol,
-        cfl_extension: str,
         available_clouds: list[str],
+        config: Optional[_Config] = None,
         without_driver: bool = False,
     ):
         """
         Args:
-            auth (AuthData): Dataclass that stores cloud authorisation data in it
-            main_folder (Path): Folder path for saving files on the cloud
-            service (CloudProtocol): Driver class
-            cfl_extension (str): Default extension for cfl files
             available_clouds (list[str]): List of supported cloud storage
+            config (_Config, optional): Dataclass containing: service (driver name),
+              main_folder, cloud authorization data, cfl_extension
             without_driver (bool, optional): Use if necessary to ignore the cloud
               connection. For example for tests, --help, etc. Defaults to False.
         """
+        # init subcommands `fcloud config`, `fcloud dropbox` ...
         self.config = Config(available_clouds)
+        self.dropbox = Dropbox()
+
+        if without_driver:
+            return
+
         try:
-            if not without_driver:
-                self._driver: CloudProtocol = service(auth, main_folder)
+            driver = Drivers[config.service].value
+            self._driver: CloudProtocol = driver(config.auth, config.main_folder)
         except DriverException as er:
             echo_error((er.title, er.message))
 
-        self._auth: AuthData = auth
-        self._main_folder: Path = main_folder
-        self._cfl_extension = cfl_extension
+        self._auth: AuthData = config.auth
+        self._main_folder: Path = config.main_folder
+        self._cfl_extension = config.cfl_extension
 
     def _to_path(self, path: SomeStr) -> Path:
         return Path(str(path))

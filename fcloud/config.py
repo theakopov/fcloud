@@ -14,10 +14,17 @@ from .utils.error import echo_error
 from .utils.config import get_config_data
 
 
-def not_empty(key: str, value: str) -> None | NoReturn:
-    if value == "" or value == ".":
-        title, message = ConfigError.field_emty_error
-        echo_error((title.format(key), message.format(key)))
+def not_empty(
+    key: str, value: str, section: str = "FCLOUD", quit_afer: bool = True
+) -> None | NoReturn:
+    if not (value == "" or value == "."):
+        return
+
+    title, message = ConfigError.field_emty_error
+    echo_error(
+        (title.format(key), message.format(section, key)),
+        need_to_quit=quit_afer,
+    )
 
 
 def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Config:
@@ -26,10 +33,10 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
 
     if not path.exists():
         echo_error(ConfigError.config_not_found)
-
     config = configparser.ConfigParser()
     config.read(path, encoding="utf-8")
 
+    # service
     cloud = get_config_data(
         "FCLOUD", "service", error=ConfigError.service_error, config=config
     ).lower()
@@ -37,17 +44,20 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
         title, message = DriverError.driver_error
         echo_error((title, message.format(cloud)))
 
-    cloud_settings = get_config_data(
-        cloud.upper(), error=ConfigError.section_error, config=config
-    )
-
+    # cfl_extension
     cfl_extension = get_config_data("FCLOUD", "cfl_extension", config=config)
 
+    # main_folder
     main_folder = Path(
         get_config_data(
             "FCLOUD", "main_folder", error=ConfigError.main_folder_error, config=config
         )
     ).as_posix()
+
+    # Section, for cloud storage settings
+    cloud_settings = get_config_data(
+        cloud.upper(), error=ConfigError.section_error, config=config
+    )
 
     auth_model = AuthData[cloud.lower()].value
 
@@ -57,7 +67,8 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
         "main_folder": main_folder,
     }
     for key, value in (fields | dict(cloud_settings)).items():
-        not_empty(key, value)
+        section = "FCLOUD" if key in fields else cloud
+        not_empty(key, value, section.upper())
 
     return Config(
         service=cloud,

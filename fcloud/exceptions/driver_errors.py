@@ -6,7 +6,7 @@ class DriverError(FcloudError):
 
     driver_error = (
         "Driver Error",
-        """Can`t find any driver for '{}'""",
+        """Can`t find any driver for '{}'. Officially supported drivers: https://fcloud.tech/docs/#cloud-storage-supported""",
     )
 
     connection_error = (

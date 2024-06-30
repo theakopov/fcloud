@@ -3,6 +3,7 @@ import requests
 from os import environ
 from textwrap import dedent
 
+from ...config import not_empty
 from ...drivers.dropbox.config_error import DropboxConfigError
 from ...exceptions.base_errors import FcloudError
 
@@ -22,14 +23,13 @@ class Dropbox:
         config = configparser.ConfigParser()
         config.read(environ.get("FCLOUD_CONFIG_PATH"))
         app_key = get_config_data("DROPBOX", "app_key")
+        not_empty("app_key", app_key, "DROPBOX")
 
-        if not app_key:
-            echo_error(DropboxConfigError.app_key_empty_error)
         token = input(
             dedent(
-                f"""
-        Get the token at this link: {self._auth_link.format(app_key)}\n
-        Your token: """
+                f"""\
+                Get the token at this link: {self._auth_link.format(app_key)}\n
+                Your token: """
             )
         )
 

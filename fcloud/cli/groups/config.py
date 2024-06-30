@@ -7,8 +7,6 @@ from ...utils.error import echo_error
 
 from ...exceptions.driver_errors import DriverError
 
-from .dropbox import Dropbox
-
 
 class Config:
     """Use to edit the configuration"""
@@ -16,7 +14,6 @@ class Config:
     def __init__(self, available_clouds: list[str], path: Optional[Path] = None):
         if path is None:
             path = Path(environ.get("FCLOUD_CONFIG_PATH"))
-        self.dropbox = Dropbox()
         self._path = path
         self._available = available_clouds
 
