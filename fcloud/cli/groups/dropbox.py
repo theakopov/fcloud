@@ -20,6 +20,8 @@ class Dropbox:
         self._auth_link = "https://www.dropbox.com/oauth2/authorize?client_id={}&token_access_type=offline&response_type=code"
 
     def get_token(self):
+        """Will generate a link, to get a permanent token
+        that fcloud will use to receive and upload files to the cloud"""
         config = configparser.ConfigParser()
         config.read(environ.get("FCLOUD_CONFIG_PATH"))
         app_key = get_config_data("DROPBOX", "app_key")
