@@ -49,11 +49,12 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
         "FCLOUD", "cfl_extension", error=ConfigError.cfl_extension_error, config=config
     )
     # main_folder
-    main_folder = Path(
-        get_config_data(
-            "FCLOUD", "main_folder", error=ConfigError.main_folder_error, config=config
-        )
-    ).as_posix()
+    main_folder = get_config_data(
+        "FCLOUD", "main_folder", error=ConfigError.main_folder_error, config=config
+    )
+    if not (main_folder.startswith("/") or main_folder.startswith("\\")):
+        main_folder = "/" + main_folder
+    main_folder = Path(main_folder).as_posix()
 
     # Section, for cloud storage settings
     cloud_settings = get_config_data(
