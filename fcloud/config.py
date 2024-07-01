@@ -45,8 +45,9 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
         echo_error((title, message.format(cloud)))
 
     # cfl_extension
-    cfl_extension = get_config_data("FCLOUD", "cfl_extension", config=config)
-
+    cfl_extension = get_config_data(
+        "FCLOUD", "cfl_extension", error=ConfigError.cfl_extension_error, config=config
+    )
     # main_folder
     main_folder = Path(
         get_config_data(

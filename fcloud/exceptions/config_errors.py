@@ -1,3 +1,4 @@
+import os
 from textwrap import dedent
 
 from .file_errors import FileError
@@ -6,17 +7,26 @@ from .file_errors import FileError
 class ConfigError(FileError):
     service_error = (
         "Config error",
-        "Can`t parse 'service' from '.conf'. Look at '.conf.example'",
+        dedent(f"""\
+        Can`t parse 'service' from '{os.environ.get('FCLOUD_CONFIG_PATH')}'. Most likely your configuration file 
+        is corrupted. You can reinstall fcloud or manually replace the configuration file with 
+        this one: https://github.com/theakopov/fcloud/blob/main/fcloud/.conf.'"""),
     )
 
     main_folder_error = (
         "Main folder error",
-        "Cant`t parse 'main_folder' from '.conf'. Look at '.conf.example'",
+        dedent(f"""\
+        Can`t parse 'main_folder' from '{os.environ.get('FCLOUD_CONFIG_PATH')}'. Most likely your configuration file
+        is corrupted. You can reinstall fcloud or manually replace the configuration file with
+        this one: https://github.com/theakopov/fcloud/blob/main/fcloud/.conf.'"""),
     )
 
     cfl_extension_error = (
         "CFL extension error",
-        "Cant`t parse 'cfl_extension' from '.conf'. Look at '.conf.example'",
+        dedent(f"""\
+        Can`t parse 'cfl_extension' from '{os.environ.get('FCLOUD_CONFIG_PATH')}'. Most likely your configuration file 
+        is corrupted. You can reinstall fcloud or manually replace the configuration file with 
+        this one: https://github.com/theakopov/fcloud/blob/main/fcloud/.conf.'"""),
     )
 
     section_error = (
