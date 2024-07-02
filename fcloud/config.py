@@ -8,7 +8,7 @@ from .exceptions.config_errors import ConfigError
 from .exceptions.driver_errors import DriverError
 
 from .models.settings import Config
-from .models.settings import AuthData
+from .models.driver import Driver
 
 from .utils.error import echo_error
 from .utils.config import get_config_data
@@ -27,7 +27,7 @@ def not_empty(
     )
 
 
-def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Config:
+def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
     if path is None:
         path = os.environ.get("FCLOUD_CONFIG_PATH")
 
@@ -40,7 +40,7 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
     cloud = get_config_data(
         "FCLOUD", "service", error=ConfigError.service_error, config=config
     ).lower()
-    if cloud not in available_clouds:
+    if cloud not in [x.name for x in drivers]:
         title, message = DriverError.driver_error
         echo_error((title, message.format(cloud)))
 
@@ -61,7 +61,10 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
         cloud.upper(), error=ConfigError.section_error, config=config
     )
 
-    auth_model = AuthData[cloud.lower()].value
+    for d in drivers:
+        if d.name == cloud:
+            driver = d
+    driver.auth_model = driver.auth_model(**cloud_settings)
 
     fields = {
         "service": cloud,
@@ -73,8 +76,7 @@ def read_config(available_clouds: list[str], path: Optional[Path] = None) -> Con
         not_empty(key, value, section.upper())
 
     return Config(
-        service=cloud,
+        service=driver,
         main_folder=Path(main_folder),
-        auth=auth_model(**cloud_settings),
         cfl_extension=str(cfl_extension),
     )

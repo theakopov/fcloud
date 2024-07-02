@@ -8,8 +8,7 @@ from prettytable import PrettyTable
 from dropbox.files import FileMetadata
 from dropbox.files import FolderMetadata
 
-from ..models.settings import AuthData
-from ..models.drivers import Drivers
+from ..models.driver import T
 from ..models.settings import Config as _Config
 from .protocol import FcloudProtocol
 from .protocol import SomeStr
@@ -55,12 +54,13 @@ class Fcloud(FcloudProtocol):
             return
 
         try:
-            driver = Drivers[config.service].value
-            self._driver: CloudProtocol = driver(config.auth, config.main_folder)
+            self._driver: CloudProtocol = config.service.driver(
+                config.service.auth_model, config.main_folder
+            )
         except DriverException as er:
             echo_error((er.title, er.message))
 
-        self._auth: AuthData = config.auth
+        self._auth: T = config.service.auth_model
         self._main_folder: Path = config.main_folder
         self._cfl_extension = config.cfl_extension
 

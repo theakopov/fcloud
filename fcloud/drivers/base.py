@@ -2,11 +2,9 @@ from typing import Protocol
 from typing import Optional
 from pathlib import Path
 
-from ..models.settings import AuthData
-
 
 class CloudProtocol(Protocol):
-    def __init__(self, auth: AuthData, main_folder: Path):
+    def __init__(self, auth, main_folder: Path):
         pass
 
     def download_file(
