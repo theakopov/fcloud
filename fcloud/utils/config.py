@@ -22,11 +22,11 @@ def edit_config(section: str, name: str, value: str) -> None:
         echo_error(ConfigError.perrmission_denied)
 
 
-def get_config_data(
-    section: str,
-    parameter: str = None,
+def get_field(
+    parameter: Optional[str] = None,
     error: tuple[str, str] = FcloudError.uknown_error,
     config: Optional[configparser.ConfigParser] = None,
+    section: str = "FCLOUD",
 ) -> str | dict | None:
     if not config:
         path = os.environ.get("FCLOUD_CONFIG_PATH")

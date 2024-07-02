@@ -6,7 +6,7 @@ from pathlib import Path
 from fcloud.utils.cfl import create_cfl, delete_cfl
 from fcloud.utils.error import echo_error
 from fcloud.utils.other import generate_new_name
-from fcloud.utils.config import get_config_data, edit_config
+from fcloud.utils.config import get_field, edit_config
 from fcloud.cli.groups.config import Config
 
 from .utils import Utils
@@ -64,16 +64,16 @@ def test_config_utils():
     utils.create_temp_config()
     os.environ["FCLOUD_CONFIG_PATH"] = TMP_PATH
 
-    service = get_config_data("FCLOUD", "service")
+    service = get_field("service")
     assert service == "test-service"
 
     edit_config("FCLOUD", "service", "dropbox")
-    service = get_config_data("FCLOUD", "service")
+    service = get_field("service")
     assert service == "dropbox"
 
     flag = False
     try:
-        get_config_data("SOME_SERVICE", "some_parametr")
+        get_field("some_parametr", section="SOME_SERVICE")
     except SystemExit:
         flag = True
     assert flag

@@ -11,7 +11,7 @@ from ...drivers.dropbox.models import TokenData
 from ...drivers.dropbox.models import DropboxAuth
 
 from ...utils.config import edit_config
-from ...utils.config import get_config_data
+from ...utils.config import get_field
 from ...utils.error import echo_error
 
 
@@ -24,7 +24,7 @@ class Dropbox:
         that fcloud will use to receive and upload files to the cloud"""
         config = configparser.ConfigParser()
         config.read(environ.get("FCLOUD_CONFIG_PATH"))
-        app_key = get_config_data("DROPBOX", "app_key")
+        app_key = get_field("app_key", section="DROPBOX")
         not_empty("app_key", app_key, "DROPBOX")
 
         token = input(
@@ -37,8 +37,8 @@ class Dropbox:
 
         auth = DropboxAuth(
             token=token,
-            app_secret=get_config_data(
-                "DROPBOX", "app_secret", DropboxConfigError.app_secret_error
+            app_secret=get_field(
+                "app_secret", DropboxConfigError.app_secret_error, section="DROPBOX"
             ),
             app_key=app_key,
         )
