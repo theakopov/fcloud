@@ -18,6 +18,7 @@ def animation(
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if ("without_animation", True) in kwargs.items():
+                kwargs.pop("without_animation")
                 return func(*args, **kwargs)
             try:
                 columns, _ = os.get_terminal_size()

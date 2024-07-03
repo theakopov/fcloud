@@ -17,6 +17,7 @@ from ..utils.error import echo_error
 from ..utils.cfl import create_cfl
 from ..utils.cfl import delete_cfl
 from ..utils.cfl import read_cfl
+from ..utils.animations import animation
 
 from .groups.config import Config
 from .groups.dropbox import Dropbox
@@ -70,13 +71,13 @@ class Fcloud(FcloudProtocol):
     def _to_remote_path(self, path: SomeStr) -> Path:
         return self._main_folder if path is None else self._to_path(path)
 
+    @animation("Uploading")
     def add(
         self,
         path: Path,
         near: bool = False,
         filename: Optional[str] = None,
         remote_path: Optional[Path] = None,
-        without_animation: bool = False,
     ) -> None:
         """Uploud file to cloud. More: https://fcloud.tech/docs/usage/commands/#add
         Args:
@@ -89,8 +90,6 @@ class Fcloud(FcloudProtocol):
             -r --remote_path (Path, optional): The folder under
               which the file will be uploaded to the server.
               Defaults to main folder from config.
-            -w --without_animtaion (bool, Optional): Removes the
-              loading animation. Default to False
         """
         p = Path(path := str(path))
         remote_path = self._to_remote_path(remote_path)
@@ -103,7 +102,7 @@ class Fcloud(FcloudProtocol):
                     self.add(
                         file,
                         remote_path=remote_path,
-                        without_animation=without_animation,
+                        without_animation=True,
                     )
             return
         elif path[-len(self._cfl_extension) :] == self._cfl_extension:
@@ -118,20 +117,14 @@ class Fcloud(FcloudProtocol):
                 p,
                 filename=filename,
                 remote_path=remote_path,
-                without_anremote_pathimation=without_animation,
             )
         except DriverException as er:
             echo_error((er.title, er.message))
 
         create_cfl(path, cloud_filename, self._main_folder, self._cfl_extension, near)
 
-    def get(
-        self,
-        cfl: SomeStr,
-        near: bool = False,
-        remove_after: bool = True,
-        without_animation: bool = False,
-    ) -> None:
+    @animation("Downloading")
+    def get(self, cfl: SomeStr, near: bool = False, remove_after: bool = True) -> None:
         """Get file from cloud. More: https://fcloud.tech/docs/usage/commands/#get
 
         Args:
@@ -144,8 +137,6 @@ class Fcloud(FcloudProtocol):
               overwriting the link file. Defaults to False.
             -r --remove-after (bool, Optional): Deletes the file
               in the cloud after downloading. Default to False
-            -w --without_animtaion (bool, Optional): Removes the
-              loading animation. Default to False
         """
         cfl = self._to_path(cfl)
         cfl_ex = self._cfl_extension
@@ -158,7 +149,7 @@ class Fcloud(FcloudProtocol):
                     self.get(
                         file,
                         remove_after=remove_after,
-                        without_animation=without_animation,
+                        without_animation=True,
                     )
             return
         else:
@@ -170,7 +161,6 @@ class Fcloud(FcloudProtocol):
                     path.name,
                     cfl,
                     path.parent,
-                    without_animation=without_animation,
                 )
             except DriverException as er:
                 echo_error((er.title, er.message))
@@ -185,7 +175,6 @@ class Fcloud(FcloudProtocol):
                     path.name,
                     cfl.parent / cfl.name[: -len(cfl_ex)],
                     path.parent,
-                    without_animataion=False,
                 )
             except DriverException as er:
                 echo_error((er.title, er.message))
@@ -196,10 +185,8 @@ class Fcloud(FcloudProtocol):
             except DriverException as er:
                 echo_error((er.title, er.message))
 
-    def info(
-        self,
-        cfl: SomeStr,
-    ) -> dict:
+    @animation("Information collection")
+    def info(self, cfl: SomeStr) -> dict:
         """Info about file. More: https://fcloud.tech/docs/usage/commands/#info
 
         Args:
@@ -218,11 +205,7 @@ class Fcloud(FcloudProtocol):
             "Content_hash": metadata.content_hash,
         }
 
-    def remove(
-        self,
-        cfl: SomeStr,
-        only_in_cloud: bool = False,
-    ) -> None:
+    def remove(self, cfl: SomeStr, only_in_cloud: bool = False) -> None:
         """Will delete a file in the cloud by cfl. More: https://fcloud.tech/docs/usage/commands/#remove
 
         Args:
@@ -251,11 +234,9 @@ class Fcloud(FcloudProtocol):
         else:
             echo_error(CFLError.not_exists_cfl_error)
 
+    @animation("Collecting files")
     def files(
-        self,
-        remote_path: Optional[Path] = None,
-        only_files: bool = False,
-        without_animation: bool = False,
+        self, remote_path: Optional[Path] = None, only_files: bool = False
     ) -> PrettyTable:
         """Get info about all files. More: https://fcloud.tech/docs/usage/commands/#files
 
@@ -265,8 +246,6 @@ class Fcloud(FcloudProtocol):
               Defaults to None.
             -o --only_files (bool, optional): Display only files in
               the output, ignoring folders. Defaults to False.
-            -w --without_animtaion (bool, Optional): Removes the
-              loading animation. Default to False
         """
         remote_path = self._to_remote_path(remote_path)
         if not only_files:
@@ -281,7 +260,7 @@ class Fcloud(FcloudProtocol):
         )
         try:
             files: list[FileMetadata | FolderMetadata] = self._driver.get_all_files(
-                Path("/" + str(remote_path)), without_animation=without_animation
+                Path("/" + str(remote_path))
             )
         except DriverException as er:
             echo_error((er.title, er.message))

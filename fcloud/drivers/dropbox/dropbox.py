@@ -1,8 +1,6 @@
-import os
 from pathlib import Path
 from typing import Callable
 from typing import Optional
-
 
 import dropbox
 from dropbox.files import UploadSessionCursor
@@ -24,7 +22,6 @@ from .errors import DropboxError
 from .errors import DropboxException
 
 from ...utils.other import generate_new_name
-from ...utils.animations import animation
 
 
 from .models import DropboxAuth
@@ -42,9 +39,6 @@ class DropboxCloud(CloudProtocol):
             app_secret=self._auth.app_secret,
         )
         self.__exec(self.app.check_app)
-
-    def _remote_path(self, remote: str):
-        return self._main_folder if remote is None else Path(remote)
 
     @staticmethod
     def __exec(func: Callable, *args, catch_unknown: bool = True, **kwargs):
@@ -83,33 +77,16 @@ class DropboxCloud(CloudProtocol):
                 raise DropboxException((title.format(er), message.format(er)))
             raise
 
-    @animation("Downloading")
-    def download_file(
-        self, name: str, local_path: Path, remote_path: Path = None, *args, **kwargs
-    ) -> None:
-        local_path = Path(local_path).as_posix()
-        remote_path = self._remote_path(remote_path)
-
+    def download_file(self, name: str, local_path: Path, remote_path: Path) -> None:
         self.__exec(
             self.app.files_download_to_file,
-            local_path,
+            local_path.as_posix(),
             (remote_path / Path(name)).as_posix(),
             catch_unknown=False,
         )
 
-    @animation("Uploading")
-    def upload_file(
-        self, local_path: Path, remote_path: Path, filename: str = None, *args, **kwargs
-    ) -> str:
-        if filename is None:
-            filename = os.path.basename(local_path)
-
-        files = [
-            file.name
-            for file in self.__exec(
-                self.get_all_files, remote_path, without_animation=True
-            )
-        ]
+    def upload_file(self, local_path: Path, remote_path: Path, filename: str) -> str:
+        files = [file.name for file in self.__exec(self.get_all_files, remote_path)]
         if filename in files:
             filename = generate_new_name(busy=files, default=filename)
 
@@ -131,15 +108,12 @@ class DropboxCloud(CloudProtocol):
         except PermissionError:
             raise DropboxException(FileError.perrmission_denied)
 
-    @animation("File collection")
-    def get_all_files(self, remote_path: Path, *args, **kwargs) -> list[Metadata]:
+    def get_all_files(self, remote_path: Path) -> list[Metadata]:
         files = self.__exec(self.app.files_list_folder, remote_path.as_posix()).entries
 
         return files
 
     def remove_file(self, filename: str, remote_path: Optional[Path] = None):
-        if remote_path is None:
-            remote_path = self._main_folder
         self.__exec(self.app.files_delete, (remote_path / filename).as_posix())
 
     def info(self, path: Path) -> Metadata:

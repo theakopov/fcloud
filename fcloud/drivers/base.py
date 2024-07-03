@@ -1,5 +1,4 @@
 from typing import Protocol
-from typing import Optional
 from pathlib import Path
 
 
@@ -11,28 +10,28 @@ class CloudProtocol(Protocol):
         self,
         name: str,
         local_path: Path,
-        remote_path: Optional[Path] = None,
+        remote_path: Path,
     ) -> None:
         pass
 
     def upload_file(
         self,
         local_path: Path,
-        filename: Optional[str] = None,
-        remote_path: Optional[Path] = None,
+        filename: str,
+        remote_path: Path,
     ) -> str:
         pass
 
     def get_all_files(
         self,
-        remote_path: Optional[Path] = None,
+        remote_path: Path,
     ) -> list:
         pass
 
     def remove_file(
         self,
         filename: str,
-        remote_path: Optional[Path] = None,
+        remote_path: Path,
     ) -> None:
         pass
 
