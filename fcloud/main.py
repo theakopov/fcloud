@@ -29,12 +29,13 @@ def main():
     ]
 
     cmd = sys.argv[1] if len(sys.argv) > 1 else None
-    without_driver = {cmd, "--help"} & {"config", *[x.name for x in drivers]}
+    _help = "--help" in sys.argv
+    with_driver = not (cmd in ["config", None, *[x.name for x in drivers]] or _help)
 
     cli = Fcloud(
         available_clouds=[x.name for x in drivers],
-        config=read_config(drivers, path) if not without_driver else None,
-        without_driver=without_driver,
+        config=read_config(drivers, path) if with_driver else None,
+        with_driver=with_driver,
     )
 
     Fire(cli, name="fcloud")

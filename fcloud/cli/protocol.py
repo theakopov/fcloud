@@ -26,15 +26,15 @@ class FcloudProtocol(Protocol):
         self,
         available_clouds: list[str],
         config: Optional[_Config] = None,
-        without_driver: bool = False,
+        with_driver: bool = True,
     ):
         """
         Args:
             available_clouds (list[str]): List of supported cloud storage
             config (_Config, optional): Dataclass containing: service (driver name),
               main_folder, cloud authorization data, cfl_extension
-            without_driver (bool, optional): Use if necessary to ignore the cloud
-              connection. For example for tests, --help, etc. Defaults to False.
+            with_driver (bool, optional): Use when you need to connect to the cloud.
+              For example, for tests, --help, etc., use False. The default value is True.
         """
         pass
 
