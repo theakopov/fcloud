@@ -10,7 +10,6 @@ authors = ["artem <theakopov@proton.me>"]
 
 [tool.poetry.dependencies]
 python = ">=3.10"
-art = "^6.1"
 dropbox = "^11.36.2"
 fire = "^0.5.0"
 terminal-animation = "^0.6"

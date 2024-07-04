@@ -2,7 +2,6 @@ import os
 import sys
 from pathlib import Path
 
-from art import tprint
 from fire import Fire
 
 from .config import read_config
@@ -28,20 +27,13 @@ def main():
             auth_model=DropboxAuth,
         )
     ]
-    if len(sys.argv) == 1:
-        tprint("FCLOUD")
-        return
 
-    sub_command = sys.argv[1] in ["config", *[x.name for x in drivers]]
-    without_driver = sub_command or "--help" in sys.argv
-    if not without_driver:
-        config = read_config(drivers, path)
-    else:
-        config = None
+    cmd = sys.argv[1] if len(sys.argv) > 1 else None
+    without_driver = {cmd, "--help"} & {"config", *[x.name for x in drivers]}
 
     cli = Fcloud(
         available_clouds=[x.name for x in drivers],
-        config=config,
+        config=read_config(drivers, path) if not without_driver else None,
         without_driver=without_driver,
     )
 

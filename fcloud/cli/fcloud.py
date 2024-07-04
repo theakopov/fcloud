@@ -1,7 +1,7 @@
 import os
 import contextlib
 from pathlib import Path
-
+from textwrap import dedent
 from typing import Optional
 
 from prettytable import PrettyTable
@@ -64,6 +64,15 @@ class Fcloud(FcloudProtocol):
         self._auth: T = config.service.auth_model
         self._main_folder: Path = config.main_folder
         self._cfl_extension = config.cfl_extension
+
+    def __call__(self):
+        return dedent("""\
+             _____   ____  _       ___   _   _  ____  
+            |  ___| / ___|| |     / _ \ | | | ||  _ \ 
+            | |_   | |    | |    | | | || | | || | | |
+            |  _|  | |___ | |___ | |_| || |_| || |_| |
+            |_|     \____||_____| \___/  \___/ |____/                                   
+            """)
 
     def _to_path(self, path: SomeStr) -> Path:
         return Path(str(path))
