@@ -4,7 +4,7 @@
   
     Before you can use `fcloud`, make sure to connect it to the cloud.
 
-A simple example of uploading and downloading a cloud file:
+A simple example of usage:
 ```
 $ ls
 > film.mp4 # 2 gb
