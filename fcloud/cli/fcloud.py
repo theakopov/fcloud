@@ -23,6 +23,7 @@ from .groups.config import Config
 from .groups.dropbox import Dropbox
 from ..exceptions.cfl_errors import CFLError
 from ..exceptions.driver_exceptions import DriverException
+from ..exceptions.file_errors import FileError
 from ..drivers.base import CloudProtocol
 
 
@@ -117,7 +118,7 @@ class Fcloud(FcloudProtocol):
         elif path[-len(self._cfl_extension) :] == self._cfl_extension:
             return
         elif not os.path.exists(p):
-            echo_error(CFLError.not_exists_cfl_error)
+            echo_error(FileError.not_exists_error)
 
         if filename is None:
             filename = Path(os.path.basename(p))
