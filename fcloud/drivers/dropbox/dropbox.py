@@ -27,29 +27,15 @@ from ...utils.other import generate_new_name
 from .models import DropboxAuth
 
 
-class DropboxCloud(CloudProtocol):
-    def __init__(self, auth: DropboxAuth, main_folder: Path):
-        self.chunk_size = 4 * 1024 * 1024
-        self._main_folder = main_folder
-        self._auth = auth
-        self.app: dropbox.Dropbox = self.__exec(
-            dropbox.Dropbox,
-            oauth2_refresh_token=self._auth.token,
-            app_key=self._auth.app_key,
-            app_secret=self._auth.app_secret,
-        )
-        self.__exec(self.app.check_app)
+def catch_api_error(func: Callable):
+    """A decorator that catches errors from the
+      Dropbox api and prints them to the user
 
-    @staticmethod
-    def __exec(func: Callable, *args, catch_unknown: bool = True, **kwargs):
-        """Executes a request to the cloud api, handling standard errors
-        Args:
-            func (callable): api function
-            catch_unknown (boolean): handles unknown errors from api, defaults - True
+    Args:
+        func (Callable): driver method
+    """
 
-        Returns:
-           Function execution result or raise error is not included in standard API errors
-        """
+    def inner(*args, **kwargs):
         try:
             result = func(*args, **kwargs)
             return result
@@ -72,49 +58,61 @@ class DropboxCloud(CloudProtocol):
         except PermissionError:
             raise DropboxException(FileError.perrmission_denied)
         except Exception as er:
-            if catch_unknown:
-                title, message = DropboxError.uknown_error
-                raise DropboxException((title.format(er), message.format(er)))
-            raise
+            title, message = DropboxError.uknown_error
+            raise DropboxException((title.format(er), message.format(er)))
 
+    return inner
+
+
+class DropboxCloud(CloudProtocol):
+    @catch_api_error
+    def __init__(self, auth: DropboxAuth, main_folder: Path):
+        self.chunk_size = 4 * 1024 * 1024
+        self._main_folder = main_folder
+        self._auth = auth
+        self.app: dropbox.Dropbox = dropbox.Dropbox(
+            oauth2_refresh_token=self._auth.token,
+            app_key=self._auth.app_key,
+            app_secret=self._auth.app_secret,
+        )
+        self.app.check_app()
+
+    @catch_api_error
     def download_file(self, name: str, local_path: Path, remote_path: Path) -> None:
-        self.__exec(
-            self.app.files_download_to_file,
-            local_path.as_posix(),
-            (remote_path / Path(name)).as_posix(),
-            catch_unknown=False,
+        self.app.files_download_to_file(
+            local_path.as_posix(), (remote_path / Path(name)).as_posix()
         )
 
+    @catch_api_error
     def upload_file(self, local_path: Path, remote_path: Path, filename: str) -> str:
-        files = [file.name for file in self.__exec(self.get_all_files, remote_path)]
+        files = [file.name for file in self.get_all_files(remote_path)]
         if filename in files:
             filename = generate_new_name(busy=files, default=filename)
 
-        upload_session = self.__exec(self.app.files_upload_session_start, b"")
-        cursor = self.__exec(
-            UploadSessionCursor, session_id=upload_session.session_id, offset=0
-        )
+        upload_session = self.app.files_upload_session_start(b"")
+        cursor = UploadSessionCursor(session_id=upload_session.session_id, offset=0)
         try:
             with open(local_path, "rb") as file:
                 while (data := file.read(self.chunk_size)) != b"":
-                    self.__exec(self.app.files_upload_session_append_v2, data, cursor)
+                    self.app.files_upload_session_append_v2(data, cursor)
                     cursor.offset += len(data)
 
-            commit = self.__exec(CommitInfo, path=(remote_path / filename).as_posix())
-            self.__exec(self.app.files_upload_session_finish, b"", cursor, commit)
+            commit = CommitInfo(path=(remote_path / filename).as_posix())
+            self.app.files_upload_session_finish(b"", cursor, commit)
             return filename
         except FileNotFoundError:
             raise DropboxException(FileError.not_exists_error)
         except PermissionError:
             raise DropboxException(FileError.perrmission_denied)
 
+    @catch_api_error
     def get_all_files(self, remote_path: Path) -> list[Metadata]:
-        files = self.__exec(self.app.files_list_folder, remote_path.as_posix()).entries
+        return self.app.files_list_folder(remote_path.as_posix()).entries
 
-        return files
-
+    @catch_api_error
     def remove_file(self, filename: str, remote_path: Optional[Path] = None):
-        self.__exec(self.app.files_delete, (remote_path / filename).as_posix())
+        self.app.files_delete((remote_path / filename).as_posix())
 
+    @catch_api_error
     def info(self, path: Path) -> Metadata:
-        return self.__exec(self.app.files_get_metadata, path.as_posix())
+        return self.app.files_get_metadata(path.as_posix())
