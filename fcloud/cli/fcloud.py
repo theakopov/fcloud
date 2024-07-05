@@ -120,13 +120,9 @@ class Fcloud(FcloudProtocol):
             echo_error(CFLError.not_exists_cfl_error)
 
         if filename is None:
-            filename = os.path.basename(p)
+            filename = Path(os.path.basename(p))
         try:
-            cloud_filename = self._driver.upload_file(
-                p,
-                filename=filename,
-                remote_path=remote_path,
-            )
+            cloud_filename = self._driver.upload_file(p, remote_path / filename)
         except DriverException as er:
             echo_error((er.title, er.message))
 
@@ -166,11 +162,7 @@ class Fcloud(FcloudProtocol):
 
         if not near:
             try:
-                self._driver.download_file(
-                    path.name,
-                    cfl,
-                    path.parent,
-                )
+                self._driver.download_file(path, cfl)
             except DriverException as er:
                 echo_error((er.title, er.message))
 
@@ -180,17 +172,13 @@ class Fcloud(FcloudProtocol):
         else:
             remove_after = False
             try:
-                self._driver.download_file(
-                    path.name,
-                    cfl.parent / cfl.name[: -len(cfl_ex)],
-                    path.parent,
-                )
+                self._driver.download_file(path, cfl.parent / cfl.name[: -len(cfl_ex)])
             except DriverException as er:
                 echo_error((er.title, er.message))
 
         if remove_after:
             try:
-                self._driver.remove_file(path.name, path.parent)
+                self._driver.remove_file(path)
             except DriverException as er:
                 echo_error((er.title, er.message))
 
@@ -227,10 +215,7 @@ class Fcloud(FcloudProtocol):
         if path.is_file():
             remote_path = read_cfl(path)
             try:
-                self._driver.remove_file(
-                    remote_path.name,
-                    remote_path.parent,
-                )
+                self._driver.remove_file(remote_path)
             except DriverException as er:
                 echo_error((er.title, er.message))
 
@@ -263,9 +248,7 @@ class Fcloud(FcloudProtocol):
             columns = ["Filename", "Size", "Modified"]
 
         files_table = PrettyTable(
-            columns,
-            encoding="utf-8",
-            title=f"Files in {remote_path}",
+            columns, encoding="utf-8", title=f"Files in {remote_path}"
         )
         try:
             files: list[FileMetadata | FolderMetadata] = self._driver.get_all_files(

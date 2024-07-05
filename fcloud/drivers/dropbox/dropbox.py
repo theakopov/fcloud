@@ -1,6 +1,7 @@
+import os
 from pathlib import Path
 from typing import Callable
-from typing import Optional
+from functools import wraps
 
 import dropbox
 from dropbox.files import UploadSessionCursor
@@ -35,6 +36,7 @@ def catch_api_error(func: Callable):
         func (Callable): driver method
     """
 
+    @wraps(func)
     def inner(*args, **kwargs):
         try:
             result = func(*args, **kwargs)
@@ -78,14 +80,14 @@ class DropboxCloud(CloudProtocol):
         self.app.check_app()
 
     @catch_api_error
-    def download_file(self, name: str, local_path: Path, remote_path: Path) -> None:
-        self.app.files_download_to_file(
-            local_path.as_posix(), (remote_path / Path(name)).as_posix()
-        )
+    def download_file(self, path: Path, local_path: Path) -> None:
+        self.app.files_download_to_file(local_path.as_posix(), path.as_posix())
 
     @catch_api_error
-    def upload_file(self, local_path: Path, remote_path: Path, filename: str) -> str:
-        files = [file.name for file in self.get_all_files(remote_path)]
+    def upload_file(self, local_path: Path, path: Path) -> str:
+        filename = os.path.basename(path)
+
+        files = [file.name for file in self.get_all_files(path.parent)]
         if filename in files:
             filename = generate_new_name(busy=files, default=filename)
 
@@ -97,7 +99,7 @@ class DropboxCloud(CloudProtocol):
                     self.app.files_upload_session_append_v2(data, cursor)
                     cursor.offset += len(data)
 
-            commit = CommitInfo(path=(remote_path / filename).as_posix())
+            commit = CommitInfo(path=path.as_posix())
             self.app.files_upload_session_finish(b"", cursor, commit)
             return filename
         except FileNotFoundError:
@@ -110,8 +112,8 @@ class DropboxCloud(CloudProtocol):
         return self.app.files_list_folder(remote_path.as_posix()).entries
 
     @catch_api_error
-    def remove_file(self, filename: str, remote_path: Optional[Path] = None):
-        self.app.files_delete((remote_path / filename).as_posix())
+    def remove_file(self, path: Path):
+        self.app.files_delete(path.as_posix())
 
     @catch_api_error
     def info(self, path: Path) -> Metadata:
