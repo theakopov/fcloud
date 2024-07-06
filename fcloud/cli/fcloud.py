@@ -13,7 +13,6 @@ from ..models.settings import Config as _Config
 from .protocol import FcloudProtocol
 from .protocol import SomeStr
 
-from ..utils.error import echo_error
 from ..utils.cfl import create_cfl
 from ..utils.cfl import delete_cfl
 from ..utils.cfl import read_cfl
@@ -21,10 +20,10 @@ from ..utils.animations import animation
 
 from .groups.config import Config
 from .groups.dropbox import Dropbox
-from ..exceptions.cfl_errors import CFLError
-from ..exceptions.driver_exceptions import DriverException
-from ..exceptions.file_errors import FileError
 from ..drivers.base import CloudProtocol
+from ..exceptions.cfl_errors import CFLError
+from ..exceptions.file_errors import FileError
+from ..exceptions.exceptions import FcloudException
 
 
 class Fcloud(FcloudProtocol):
@@ -55,25 +54,23 @@ class Fcloud(FcloudProtocol):
         if not with_driver:
             return
 
-        try:
-            self._driver: CloudProtocol = config.service.driver(
-                config.service.auth_model, config.main_folder
-            )
-        except DriverException as er:
-            echo_error((er.title, er.message))
-
+        self._driver: CloudProtocol = config.service.driver(
+            config.service.auth_model, config.main_folder
+        )
         self._auth: T = config.service.auth_model
         self._main_folder: Path = config.main_folder
         self._cfl_extension = config.cfl_extension
 
     def __call__(self):
-        return dedent("""\
+        print(
+            dedent("""\
              _____   ____  _       ___   _   _  ____  
             |  ___| / ___|| |     / _ \ | | | ||  _ \ 
             | |_   | |    | |    | | | || | | || | | |
             |  _|  | |___ | |___ | |_| || |_| || |_| |
             |_|     \____||_____| \___/  \___/ |____/                                   
             """)
+        )
 
     def _to_path(self, path: SomeStr) -> Path:
         return Path(str(path))
@@ -105,8 +102,13 @@ class Fcloud(FcloudProtocol):
         remote_path = self._to_remote_path(remote_path)
 
         if p.is_dir() and near:
-            echo_error(CFLError.near_with_folder_error)
-        elif p.is_dir():
+            raise FcloudException(*CFLError.near_with_folder_error)
+        elif not os.path.exists(p):
+            raise FcloudException(*FileError.not_exists_error)
+        elif path[-len(self._cfl_extension) :] == self._cfl_extension:
+            return
+
+        if p.is_dir():
             for file in [x for x in p.rglob("*") if x.is_file()]:
                 with contextlib.suppress(SystemExit):
                     self.add(
@@ -115,19 +117,15 @@ class Fcloud(FcloudProtocol):
                         without_animation=True,
                     )
             return
-        elif path[-len(self._cfl_extension) :] == self._cfl_extension:
-            return
-        elif not os.path.exists(p):
-            echo_error(FileError.not_exists_error)
 
         if filename is None:
             filename = Path(os.path.basename(p))
-        try:
-            cloud_filename = self._driver.upload_file(p, remote_path / filename)
-        except DriverException as er:
-            echo_error((er.title, er.message))
+        else:
+            filename = Path(str(filename))
 
-        create_cfl(path, cloud_filename, self._main_folder, self._cfl_extension, near)
+        cloud_filename = self._driver.upload_file(p, remote_path / filename)
+
+        create_cfl(path, cloud_filename, remote_path, self._cfl_extension, near)
 
     @animation("Downloading")
     def get(self, cfl: SomeStr, near: bool = False, remove_after: bool = True) -> None:
@@ -159,29 +157,20 @@ class Fcloud(FcloudProtocol):
                     )
             return
         else:
-            echo_error(CFLError.not_exists_cfl_error)
+            raise CFLError.not_exists_cfl_error
 
         if not near:
-            try:
-                self._driver.download_file(path, cfl)
-            except DriverException as er:
-                echo_error((er.title, er.message))
+            self._driver.download_file(path, cfl)
 
             if str(cfl).endswith(cfl_ex):
                 new_name = cfl.name[: -len(cfl_ex)] if -len(cfl_ex) != 0 else cfl.name
                 os.rename(cfl, cfl.parent / new_name)
         else:
             remove_after = False
-            try:
-                self._driver.download_file(path, cfl.parent / cfl.name[: -len(cfl_ex)])
-            except DriverException as er:
-                echo_error((er.title, er.message))
+            self._driver.download_file(path, cfl.parent / cfl.name[: -len(cfl_ex)])
 
         if remove_after:
-            try:
-                self._driver.remove_file(path)
-            except DriverException as er:
-                echo_error((er.title, er.message))
+            self._driver.remove_file(path)
 
     @animation("Information collection")
     def info(self, cfl: SomeStr) -> dict:
@@ -191,10 +180,7 @@ class Fcloud(FcloudProtocol):
             -c --cfl (Path): File-link path
         """
         path = self._to_path(cfl)
-        try:
-            metadata = self._driver.info(read_cfl(path))
-        except DriverException as er:
-            echo_error((er.title, er.message))
+        metadata = self._driver.info(read_cfl(path))
 
         return {
             "Path": metadata.path_display,
@@ -215,10 +201,7 @@ class Fcloud(FcloudProtocol):
 
         if path.is_file():
             remote_path = read_cfl(path)
-            try:
-                self._driver.remove_file(remote_path)
-            except DriverException as er:
-                echo_error((er.title, er.message))
+            self._driver.remove_file(remote_path)
 
             if not only_in_cloud:
                 delete_cfl(cfl)
@@ -227,7 +210,7 @@ class Fcloud(FcloudProtocol):
                 with contextlib.suppress(SystemExit):
                     self.remove(file, only_in_cloud=only_in_cloud)
         else:
-            echo_error(CFLError.not_exists_cfl_error)
+            raise CFLError.not_exists_cfl_error
 
     @animation("Collecting files")
     def files(
@@ -251,12 +234,9 @@ class Fcloud(FcloudProtocol):
         files_table = PrettyTable(
             columns, encoding="utf-8", title=f"Files in {remote_path}"
         )
-        try:
-            files: list[FileMetadata | FolderMetadata] = self._driver.get_all_files(
-                Path("/" + str(remote_path))
-            )
-        except DriverException as er:
-            echo_error((er.title, er.message))
+        files: list[FileMetadata | FolderMetadata] = self._driver.get_all_files(
+            remote_path
+        )
 
         for file in files:
             if isinstance(file, FileMetadata) and only_files:

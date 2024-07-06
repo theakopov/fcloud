@@ -6,11 +6,11 @@ from typing import NoReturn
 
 from .exceptions.config_errors import ConfigError
 from .exceptions.driver_errors import DriverError
+from .exceptions.exceptions import FcloudConfigException
 
 from .models.settings import Config
 from .models.driver import Driver
 
-from .utils.error import echo_error
 from .utils.config import get_field
 
 
@@ -21,10 +21,7 @@ def not_empty(
         return
 
     title, message = ConfigError.field_emty_error
-    echo_error(
-        (title.format(key), message.format(section, key)),
-        need_to_quit=quit_afer,
-    )
+    raise FcloudConfigException(title.format(key), message.format(section, key))
 
 
 def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
@@ -32,7 +29,7 @@ def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
         path = os.environ.get("FCLOUD_CONFIG_PATH")
 
     if not path.exists():
-        echo_error(ConfigError.config_not_found)
+        raise FcloudConfigException(ConfigError.config_not_found)
     config = configparser.ConfigParser()
     config.read(path, encoding="utf-8")
 
@@ -40,7 +37,7 @@ def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
     cloud = get_field("service", error=ConfigError.service_error, config=config).lower()
     if cloud not in [x.name for x in drivers]:
         title, message = DriverError.driver_error
-        echo_error((title, message.format(cloud)))
+        raise FcloudConfigException(title, message.format(cloud))
 
     # cfl_extension
     cfl_extension = get_field("cfl_extension", ConfigError.cfl_extension_error, config)
@@ -65,6 +62,7 @@ def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
         "main_folder": main_folder,
         **cloud_settings,
     }
+
     for key, value in fields.items():
         section = cloud if key in cloud_settings else "FCLOUD"
         not_empty(key, value, section.upper())

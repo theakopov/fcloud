@@ -7,11 +7,13 @@ from fire import Fire
 from .config import read_config
 from .cli.fcloud import Fcloud
 from .models.driver import Driver
+from .utils.error import catch_error
 
 from .drivers.dropbox.dropbox import DropboxCloud
 from .drivers.dropbox.models import DropboxAuth
 
 
+@catch_error
 def main():
     if os.environ.get(env := "FCLOUD_CONFIG_PATH") is None:
         path = Path(os.path.abspath(__file__)).parent / Path(".conf")

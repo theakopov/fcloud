@@ -12,6 +12,7 @@ from dropbox.exceptions import BadInputError
 from dropbox.dropbox_client import BadInputException
 from dropbox.exceptions import ApiError
 from dropbox.exceptions import HttpError
+from requests.exceptions import ProxyError
 from stone.backends.python_rsrc.stone_validators import ValidationError
 
 
@@ -42,26 +43,26 @@ def catch_api_error(func: Callable):
             result = func(*args, **kwargs)
             return result
         except AuthError:
-            raise DropboxException(DropboxError.auth_error)
+            raise DropboxException(*DropboxError.auth_error)
         except BadInputError as er:
             title, message = DropboxError.badinput_error
-            raise DropboxException((title, message.format(er.message)))
+            raise DropboxException(title, message.format(er.message))
         except BadInputException as er:
             title, message = DropboxError.uncorrect_data_error
-            raise DropboxException((title, message.format(er)))
-        except HttpError:
-            raise DropboxError(DropboxError.max_retries_error)
+            raise DropboxException(title, message.format(er))
+        except (HttpError, ProxyError):
+            raise DropboxException(*DropboxError.max_retries_error)
         except ApiError as er:
-            raise DropboxException(("API error", er.args[1]))
+            raise DropboxException("API error", er.args[1])
         except ConnectionError:
-            raise DropboxException(DropboxError.connection_error)
+            raise DropboxException(*DropboxError.connection_error)
         except ValidationError:
-            raise DropboxException(DropboxError.validation_error)
+            raise DropboxException(*DropboxError.validation_error)
         except PermissionError:
-            raise DropboxException(FileError.perrmission_denied)
+            raise DropboxException(*FileError.perrmission_denied)
         except Exception as er:
             title, message = DropboxError.uknown_error
-            raise DropboxException((title.format(er), message.format(er)))
+            raise DropboxException(title.format(er), message.format(er))
 
     return inner
 
@@ -103,9 +104,9 @@ class DropboxCloud(CloudProtocol):
             self.app.files_upload_session_finish(b"", cursor, commit)
             return filename
         except FileNotFoundError:
-            raise DropboxException(FileError.not_exists_error)
+            raise DropboxException(*FileError.not_exists_error)
         except PermissionError:
-            raise DropboxException(FileError.perrmission_denied)
+            raise DropboxException(*FileError.perrmission_denied)
 
     @catch_api_error
     def get_all_files(self, remote_path: Path) -> list[Metadata]:

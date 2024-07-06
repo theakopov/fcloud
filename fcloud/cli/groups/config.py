@@ -3,9 +3,9 @@ from os import environ
 from typing import Optional
 
 from ...utils.config import edit_config
-from ...utils.error import echo_error
 
 from ...exceptions.driver_errors import DriverError
+from ...exceptions.exceptions import FcloudException
 
 
 class Config:
@@ -23,7 +23,7 @@ class Config:
             edit_config("FCLOUD", "service", name)
         else:
             title, message = DriverError.driver_error
-            echo_error((title, message.format(name)))
+            raise FcloudException(title, message.format(name))
 
     def set_main_folder(self, path: str):
         """Setup your main folder"""

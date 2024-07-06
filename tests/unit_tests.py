@@ -4,7 +4,6 @@ from textwrap import dedent
 from pathlib import Path
 
 from fcloud.utils.cfl import create_cfl, delete_cfl
-from fcloud.utils.error import echo_error
 from fcloud.utils.other import generate_new_name
 from fcloud.utils.config import get_field, edit_config
 from fcloud.cli.groups.config import Config
@@ -39,16 +38,6 @@ def test_cfl_util_near():
     assert os.path.isfile(TMP_PATH)
 
     delete_cfl(TMP_PATH + ex)
-
-
-def test_echo_error():
-    work_correct = False
-    try:
-        echo_error(("", ""), need_to_quit=True)
-    except SystemExit:
-        work_correct = True
-
-    assert work_correct
 
 
 def test_generate_new_name():

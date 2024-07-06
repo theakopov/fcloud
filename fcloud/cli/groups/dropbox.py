@@ -6,13 +6,13 @@ from textwrap import dedent
 from ...config import not_empty
 from ...drivers.dropbox.config_error import DropboxConfigError
 from ...exceptions.base_errors import FcloudError
+from ...exceptions.exceptions import FcloudException
 
 from ...drivers.dropbox.models import TokenData
 from ...drivers.dropbox.models import DropboxAuth
 
 from ...utils.config import edit_config
 from ...utils.config import get_field
-from ...utils.error import echo_error
 
 
 class Dropbox:
@@ -56,17 +56,13 @@ class Dropbox:
                 ),
             )
         except Exception as e:
-            echo_error(("Api error", str(e)))
+            raise FcloudException("Api error", str(e))
         result = response.json()
 
         if not result.get("error"):
             return TokenData(**result)
         else:
-            echo_error(
-                (
-                    result.get("error", FcloudError.uknown_error),
-                    result.get(
-                        "error_description", "No error description"
-                    ).capitalize(),
-                )
+            raise FcloudException(
+                result.get("error", FcloudError.uknown_error),
+                result.get("error_description", "No error description").capitalize(),
             )

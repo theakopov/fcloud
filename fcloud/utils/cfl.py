@@ -1,10 +1,10 @@
 import os
 from pathlib import Path
 
-from .error import echo_error
 from ..exceptions.cfl_errors import CFLError
 from ..exceptions.file_errors import FileError
 from ..exceptions.base_errors import FcloudError
+from ..exceptions.exceptions import FcloudException
 
 
 def create_cfl(
@@ -26,12 +26,12 @@ def create_cfl(
         with open(path + cfl_extension, "w", encoding="utf-8") as cfl:
             cfl.write(f"%cfl:{main_folder / filename}")
     except PermissionError:
-        echo_error(FileError.perrmission_denied)
+        raise FcloudException(*FileError.perrmission_denied)
     except FileExistsError:
-        echo_error(FileError.not_exists_error)
+        raise FcloudException(*FileError.not_exists_error)
     except Exception as err:
         title, message = FcloudError.uknown_error
-        echo_error((title, message.format(err)))
+        raise FcloudException(title, message.format(err))
 
 
 def read_cfl(path: Path) -> Path:
@@ -44,13 +44,13 @@ def read_cfl(path: Path) -> Path:
         tuple[remote_path, filename]: Returns the default folder path and file name
     """
     if not path.exists():
-        echo_error(CFLError.not_exists_cfl_error)
+        raise FcloudException(*CFLError.not_exists_cfl_error)
     with open(path, "r", encoding="utf-8") as cfl:
         data = cfl.readline()
         if is_cfl(data):
             path = Path(data[5:])
         else:
-            echo_error(CFLError.incorrect_cfl_error)
+            raise FcloudException(*CFLError.incorrect_cfl_error)
     return path
 
 
@@ -62,9 +62,9 @@ def delete_cfl(cfl: Path) -> None:
     try:
         os.remove(cfl)
     except PermissionError:
-        echo_error(FileError.perrmission_denied)
+        raise FcloudException(*FileError.perrmission_denied)
     except FileExistsError:
-        echo_error(FileError.not_exists_error)
+        raise FcloudException(*FileError.not_exists_error)
     except Exception as err:
         title, message = FcloudError.uknown_error
-        echo_error((title, message.format(err)))
+        raise FcloudException(title, message.format(err))

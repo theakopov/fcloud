@@ -12,7 +12,7 @@ class FcloudError:
     uknown_error = (
         "Uknown error",
         dedent("""\
-        Details: {}\n
+        Details: {}
         Maybe, you can find more abut this error on http://fcloud.tech/docs/clouds/dropbox/errors/
         """),
     )

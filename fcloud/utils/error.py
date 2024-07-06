@@ -1,28 +1,22 @@
 import sys
-from typing import NoReturn
-from typing import Optional
-from typing import TextIO
+from functools import wraps
+
+from ..exceptions.exceptions import FcloudException
 
 
-def echo_error(
-    error_data: tuple[str, str],
-    need_to_quit: bool = True,
-    stderr: Optional[TextIO] = sys.stderr,
-    msg_type="Error",
-) -> NoReturn | None:
-    """Function to call an error in the console
+def catch_error(func):
+    """Catch and print FcloudException errors"""
 
-    Args:
-        error_data (tuple[str, str]): error title and message
-        need_to_quit (bool, optional): Terminates the programme
-          after an error occurs. Default value is True.
-    """
-    title, message = error_data
+    @wraps(func)
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except FcloudException as err:
+            print(
+                f"\rError: {err.title}\r\n{err.message}",
+                file=sys.stderr,
+            )
 
-    print(
-        f"\r{msg_type}: {title}\r\n{message}",
-        file=stderr,
-    )
+            sys.exit(1)
 
-    if need_to_quit:
-        sys.exit(1)
+    return inner

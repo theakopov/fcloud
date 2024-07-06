@@ -2,10 +2,10 @@ import os
 import configparser
 from typing import Optional
 
-from .error import echo_error
 
 from ..exceptions.config_errors import ConfigError
 from ..exceptions.base_errors import FcloudError
+from ..exceptions.exceptions import FcloudConfigException
 
 
 def edit_config(section: str, name: str, value: str) -> None:
@@ -17,9 +17,9 @@ def edit_config(section: str, name: str, value: str) -> None:
         with open(path, "w", encoding="utf-8") as configfile:
             config.write(configfile)
     except FileNotFoundError:
-        echo_error(ConfigError.config_not_found)
+        raise FcloudConfigException(*ConfigError.config_not_found)
     except PermissionError:
-        echo_error(ConfigError.perrmission_denied)
+        raise FcloudConfigException(*ConfigError.perrmission_denied)
 
 
 def get_field(
@@ -39,4 +39,4 @@ def get_field(
         else:
             return config[str(section)]
     except KeyError:
-        echo_error(error)
+        raise FcloudConfigException(*error)
