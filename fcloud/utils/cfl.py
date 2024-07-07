@@ -48,10 +48,10 @@ def read_cfl(path: Path) -> Path:
     with open(path, "r", encoding="utf-8") as cfl:
         data = cfl.readline()
         if is_cfl(data):
-            path = Path(data[5:])
+            data = data[5:].replace("\n", "")
         else:
             raise FcloudException(*CFLError.incorrect_cfl_error)
-    return path
+    return Path(data)
 
 
 def is_cfl(cfl: str) -> bool:
