@@ -1,16 +1,20 @@
 # Installation
+#### Installation
+### Windows:
+Download the ready installers here:  [https://github.com/theakopov/fcloud/releases](https://github.com/theakopov/fcloud/releases).
 
-#### Install fcloud
-You can download the project using *pipx*:
-  - `pipx install git+https://github.com/theakopov/fcloud` - install source<br>
-!!! important
-    Ensure pipx is installed on your system first: [pipx installation guide](https://pipx.pypa.io/stable/installation/)
+### Linux:
+Download the project using <i>pipx</i>:
+> install it before - [https://pipx.pypa.io/latest/installation/](https://pipx.pypa.io/latest/installation/)
+```bash
+pipx install https://github.com/theakopov/fcloud/archive/refs/heads/main.zip
+```
 
 #### Set up
 
 1. You need to tell fcloud which cloud storage service you will use.
  Let's take dropbox as an example
-    `fcloud config set-parametr FCLOUD service dropbox`
+    `fcloud config set-cloud dropbox`
 
 2. Create a folder in your cloud and specify it with the following command. By default, all files will be downloaded there.*
 
