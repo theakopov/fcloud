@@ -24,51 +24,60 @@ def not_empty(
     raise FcloudConfigException(title.format(key), message.format(section, key))
 
 
+def _service_validator(service: str, drivers: list[Driver]) -> str:
+    service = service.lower()
+    if service not in [x.name for x in drivers]:
+        title, message = DriverError.driver_error
+        raise FcloudConfigException(title, message.format(service))
+    return service
+
+
+def _main_folder_validator(main_folder: str) -> str:
+    if not (main_folder.startswith("/") or main_folder.startswith("\\")):
+        main_folder = "/" + main_folder
+    folder = Path(main_folder).as_posix()
+    return Path(folder)
+
+
+def _driver_init(service: str, drivers: list[Driver], initial_settings):
+    driver = [d for d in drivers if d.name == service][0]
+    driver.auth_model = driver.auth_model(**initial_settings)
+    return driver
+
+
 def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
     if path is None:
         path = os.environ.get("FCLOUD_CONFIG_PATH")
 
     if not path.exists():
         raise FcloudConfigException(ConfigError.config_not_found)
+
     config = configparser.ConfigParser()
     config.read(path, encoding="utf-8")
 
-    # service
-    cloud = get_field("service", error=ConfigError.service_error, config=config).lower()
-    if cloud not in [x.name for x in drivers]:
-        title, message = DriverError.driver_error
-        raise FcloudConfigException(title, message.format(cloud))
+    fields = {
+        "service": None,
+        "cfl_extension": None,
+        "main_folder": None,
+    }
+    for field in fields:
+        title, message = ConfigError.field_error
+        message.format(field, os.environ["FCLOUD_CONFIG_PATH"])
+        fields[field] = get_field(field, (title, message), config)
 
-    # cfl_extension
-    cfl_extension = get_field("cfl_extension", ConfigError.cfl_extension_error, config)
+    fields["service"] = _service_validator(fields["service"], drivers)
+    fields["main_folder"] = _main_folder_validator(fields["main_folder"])
 
-    # main_folder
-    main_folder = get_field("main_folder", ConfigError.main_folder_error, config)
-    if not (main_folder.startswith("/") or main_folder.startswith("\\")):
-        main_folder = "/" + main_folder
-    main_folder = Path(main_folder).as_posix()
-
-    # Section, for cloud storage settings
     cloud_settings = get_field(
-        section=cloud.upper(), error=ConfigError.section_error, config=config
+        section=fields["service"].upper(),
+        error=ConfigError.section_error,
+        config=config,
     )
 
-    driver = [d for d in drivers if d.name == cloud][0]
-    driver.auth_model = driver.auth_model(**cloud_settings)
-
-    fields = {
-        "service": cloud,
-        "cfl_extension": cfl_extension,
-        "main_folder": main_folder,
-        **cloud_settings,
-    }
-
-    for key, value in fields.items():
-        section = cloud if key in cloud_settings else "FCLOUD"
+    for key, value in (fields | dict(cloud_settings)).items():
+        section = fields["service"] if key in cloud_settings else "FCLOUD"
         not_empty(key, value, section.upper())
 
-    return Config(
-        service=driver,
-        main_folder=Path(main_folder),
-        cfl_extension=str(cfl_extension),
-    )
+    fields["service"] = _driver_init(fields["service"], drivers, cloud_settings)
+
+    return Config(**fields)

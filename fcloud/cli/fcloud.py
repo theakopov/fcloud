@@ -157,7 +157,7 @@ class Fcloud(FcloudProtocol):
                     )
             return
         else:
-            raise CFLError.not_exists_cfl_error
+            raise FcloudException(*CFLError.not_exists_cfl_error)
 
         if not near:
             self._driver.download_file(path, cfl)
