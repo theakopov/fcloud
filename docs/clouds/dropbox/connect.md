@@ -25,7 +25,7 @@ Don't forget to save the change after making the changes.
 ![](../../img/dropbox/permissions.png)
 
 #### **6. Specify dropbox as your cloud**
-    fcloud config set-cloud dropbox
+    fcloud config cloud dropbox
 #### **7. Set the App key and App secret in fcloud using the following commands:**
 
     fcloud config set-parametr DROPBOX app_key <your app key here>
@@ -34,13 +34,13 @@ Don't forget to save the change after making the changes.
 
 #### **8. Generate access key**
 
-Use `fcloud config dropbox get-token` to get the link needed to confirm that the application has been issued an access token. You need to open the link, which will be displayed in the terminal, and confirm that the token has been issued.
+Use `fcloud dropbox get-token` to get the link needed to confirm that the application has been issued an access token. You need to open the link, which will be displayed in the terminal, and confirm that the token has been issued.
 
 *Then copy it and paste it into the terminal.*
 
 #### **9. Add a folder to save files to the cloud**
 
-Use `fcloud config set-main-folder /my_folder` to add a folder where by default all files that you will upload using fcloud will be saved.
+Use `fcloud config folder /my_folder` to add a folder where by default all files that you will upload using fcloud will be saved.
 
 !!! important
     Before how to add a folder, create one in your cloud

@@ -29,28 +29,33 @@ app_key =
 ```
 
 #### Using high-level commands
-Fcloud provides the following commands for working with configuration files:
+Fcloud provides the following `config` subcommands for working with configuration files:
 
-* `set-cloud`
-* `set-main-folder`
-* `set-cfl-ex`
+* `cloud`
+* `folder`
+* `extension`
 * `set-parametr`
 
-### fcloud config set-cloud 
+> Alternatively, you can use aliases for these commands:
+`fcloud config cloud` --> `fcloud config set-cloud`
+`fcloud config folder` --> `fcloud config set-main-folder` --> `fcloud config main-folder`
+`fcloud config extension` --> `fcloud config set-cfl-ex` --> `fcloud config cfl-ex`
+
+### fcloud config cloud
 > Specifies the name of the service in the configuration file whose driver is to be used
 
 *Arguments:*
 
 `-n --name` - Service name
 
-### fcloud config set-main-folder 
+### fcloud config folder
 > Specifies the path to the folder where fcloud will save all the files you choose to upload
 
 *Arguments:*
 
 `-p --path` - Cloud folder path
 
-### fcloud config set-cfl-ex 
+### fcloud config extension
 > Specifies which extension to assign to CFL files (files uploaded to the cloud)
 
 *Arguments:*

@@ -14,12 +14,12 @@ pipx install https://github.com/theakopov/fcloud/archive/refs/heads/main.zip
 
 1. You need to tell fcloud which cloud storage service you will use.
  Let's take dropbox as an example
-    `fcloud config set-cloud dropbox`
+    `fcloud config cloud dropbox`
 
 2. Create a folder in your cloud and specify it with the following command. By default, all files will be downloaded there.*
 
-    `fcloud config set-parametr FCLOUD main_folder </your folder name/>`<br>
-For example: `fcloud config set-parametr FCLOUD main_folder /laptop`
+    `fcloud config folder </your folder name/>`<br>
+For example: `fcloud config folder /laptop`
 
 
 !!! note

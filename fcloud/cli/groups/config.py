@@ -37,6 +37,10 @@ class Config:
         "Set amy parametr to configuration"
         edit_config(section, parametr_name, value)
 
+    cloud = set_cloud
+    main_folder = folder = set_main_folder
+    cfl_ex = extension = set_cfl_ex
+
     def path(self):
         """Config path"""
         return self._path
