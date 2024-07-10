@@ -2,7 +2,6 @@ import configparser
 import os
 from pathlib import Path
 from typing import Optional
-from typing import NoReturn
 
 from .exceptions.config_errors import ConfigError
 from .exceptions.driver_errors import DriverError
@@ -12,16 +11,7 @@ from .models.settings import Config
 from .models.driver import Driver
 
 from .utils.config import get_field
-
-
-def not_empty(
-    key: str, value: str, section: str = "FCLOUD", quit_afer: bool = True
-) -> None | NoReturn:
-    if not (value == "" or value == "."):
-        return
-
-    title, message = ConfigError.field_emty_error
-    raise FcloudConfigException(title.format(key), message.format(section, key))
+from .utils.config import get_section
 
 
 def _service_validator(service: str, drivers: list[Driver]) -> str:
@@ -68,15 +58,15 @@ def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
     fields["service"] = _service_validator(fields["service"], drivers)
     fields["main_folder"] = _main_folder_validator(fields["main_folder"])
 
-    cloud_settings = get_field(
-        section=fields["service"].upper(),
-        error=ConfigError.section_error,
-        config=config,
+    cloud_settings = get_section(
+        fields["service"].upper(), ConfigError.section_error, config
     )
 
     for key, value in (fields | dict(cloud_settings)).items():
         section = fields["service"] if key in cloud_settings else "FCLOUD"
-        not_empty(key, value, section.upper())
+        if value == "" or value == ".":
+            title, message = ConfigError.field_emty_error
+            raise FcloudConfigException(title.format(key), message.format(section, key))
 
     fields["service"] = _driver_init(fields["service"], drivers, cloud_settings)
 

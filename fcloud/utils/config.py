@@ -23,7 +23,7 @@ def edit_config(section: str, name: str, value: str) -> None:
 
 
 def get_field(
-    parameter: Optional[str] = None,
+    parameter: str,
     error: tuple[str, str] = FcloudError.uknown_error,
     config: Optional[configparser.ConfigParser] = None,
     section: str = "FCLOUD",
@@ -34,9 +34,21 @@ def get_field(
         config.read(path)
 
     try:
-        if parameter is not None:
-            return config[str(section)][str(parameter)]
-        else:
-            return config[str(section)]
+        return config[section][parameter]
+    except KeyError:
+        raise FcloudConfigException(*error)
+
+
+def get_section(
+    section: str = "FCLOUD",
+    error: tuple[str, str] = FcloudError.uknown_error,
+    config: Optional[configparser.ConfigParser] = None,
+) -> configparser.SectionProxy:
+    if not config:
+        path = os.environ.get("FCLOUD_CONFIG_PATH")
+        config = configparser.ConfigParser()
+        config.read(path)
+    try:
+        return config[section]
     except KeyError:
         raise FcloudConfigException(*error)

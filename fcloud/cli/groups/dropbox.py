@@ -1,12 +1,10 @@
-import configparser
 import requests
-from os import environ
+import os
 from textwrap import dedent
 
-from ...config import not_empty
-from ...drivers.dropbox.config_error import DropboxConfigError
 from ...exceptions.base_errors import FcloudError
 from ...exceptions.exceptions import FcloudException
+from ...exceptions.config_errors import ConfigError
 
 from ...drivers.dropbox.models import TokenData
 from ...drivers.dropbox.models import DropboxAuth
@@ -22,10 +20,9 @@ class Dropbox:
     def get_token(self):
         """Will generate a link, to get a permanent token
         that fcloud will use to receive and upload files to the cloud"""
-        config = configparser.ConfigParser()
-        config.read(environ.get("FCLOUD_CONFIG_PATH"))
-        app_key = get_field("app_key", section="DROPBOX")
-        not_empty("app_key", app_key, "DROPBOX")
+        title, message = ConfigError.field_error
+        error = (title, message.format("app_key", os.environ["FCLOUD_CONFIG_PATH"]))
+        app_key = get_field("app_key", error, section="DROPBOX")
 
         token = input(
             dedent(
@@ -35,11 +32,13 @@ class Dropbox:
             )
         )
 
+        title, message = ConfigError.field_error
+        error = (title, message.format("app_secret", os.environ["FCLOUD_CONFIG_PATH"]))
+        app_secret = get_field("app_secret", error, section="DROPBOX")
+
         auth = DropboxAuth(
             token=token,
-            app_secret=get_field(
-                "app_secret", DropboxConfigError.app_secret_error, section="DROPBOX"
-            ),
+            app_secret=app_secret,
             app_key=app_key,
         )
         access_token = self._get_access_token(auth)
