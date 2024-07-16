@@ -20,6 +20,8 @@ from ..utils.animations import animation
 
 from .groups.config import Config
 from .groups.dropbox import Dropbox
+from .groups.yandex import Yandex
+
 from ..drivers.base import CloudProtocol
 from ..exceptions.cfl_errors import CFLError
 from ..exceptions.file_errors import FileError
@@ -50,6 +52,7 @@ class Fcloud(FcloudProtocol):
         # init subcommands `fcloud config`, `fcloud dropbox` ...
         self.config = Config(available_clouds)
         self.dropbox = Dropbox()
+        self.yandex = Yandex()
 
         if not with_driver:
             return
