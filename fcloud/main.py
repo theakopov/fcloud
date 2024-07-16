@@ -12,6 +12,9 @@ from .utils.error import catch_error
 from .drivers.dropbox.dropbox import DropboxCloud
 from .drivers.dropbox.models import DropboxAuth
 
+from .drivers.yandex.yandex import YandexCloud
+from .drivers.yandex.models import YandexAuth
+
 
 @catch_error
 def main():
@@ -27,7 +30,12 @@ def main():
             name="dropbox",
             driver=DropboxCloud,
             auth_model=DropboxAuth,
-        )
+        ),
+        Driver(
+            name="yandex",
+            driver=YandexCloud,
+            auth_model=YandexAuth,
+        ),
     ]
 
     cmd = sys.argv[1] if len(sys.argv) > 1 else None
