@@ -2,3 +2,4 @@ fire>=0.5.0
 dropbox>=11.36.2
 terminal-animation>=0.6
 prettytable>=3.9.0
+yadisk>=3.1.0
