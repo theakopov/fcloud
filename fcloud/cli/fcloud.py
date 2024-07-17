@@ -183,14 +183,7 @@ class Fcloud(FcloudProtocol):
             -c --cfl (Path): File-link path
         """
         path = self._to_path(cfl)
-        metadata = self._driver.info(read_cfl(path))
-
-        return {
-            "Path": metadata.path_display,
-            "Modified": metadata.server_modified,
-            "Size": f"{metadata.size}B",
-            "Content_hash": metadata.content_hash,
-        }
+        return self._driver.info(read_cfl(path))
 
     def remove(self, cfl: SomeStr, only_in_cloud: bool = False) -> None:
         """Will delete a file in the cloud by cfl. More: https://fcloud.tech/docs/usage/commands/#remove

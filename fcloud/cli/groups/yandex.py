@@ -1,9 +1,8 @@
 import os
-from textwrap import dedent
-
 import yadisk
 
 from ...exceptions.config_errors import ConfigError
+
 from ...utils.config import edit_config
 from ...utils.config import get_field
 

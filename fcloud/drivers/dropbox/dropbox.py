@@ -117,5 +117,12 @@ class DropboxCloud(CloudProtocol):
         self.app.files_delete(path.as_posix())
 
     @catch_api_error
-    def info(self, path: Path) -> Metadata:
-        return self.app.files_get_metadata(path.as_posix())
+    def info(self, path: Path) -> dict:
+        metadata = self.app.files_get_metadata(path.as_posix())
+
+        return {
+            "Path": metadata.path_display,
+            "Modified": metadata.server_modified,
+            "Size": f"{metadata.size}B",
+            "Content hash": metadata.content_hash,
+        }
