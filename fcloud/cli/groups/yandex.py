@@ -23,14 +23,9 @@ class Yandex:
     def get_token(self):
         """Generates a code that must be validated by clicking
         on the link to receive the token"""
-        code_obj = self._app.get_device_code()
-        input(
-            dedent(
-                f"""\
-                Enter the code `{code_obj.user_code}` at this link {code_obj.verification_url}.
-                After you enter the code, press any key.
-                """
-            )
-        )
-        token = self._app.get_token_from_device_code(code_obj.device_code)
-        edit_config("YANDEX", "token", token.refresh_token)
+        url = self._app.get_code_url()
+        print(f"Go to the following url: {url}")
+        code = input("Enter the confirmation code: ")
+
+        response = self._app.get_token(code)
+        edit_config("YANDEX", "token", response.access_token)
