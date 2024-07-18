@@ -5,12 +5,21 @@ from pathlib import Path
 from typing import Callable
 from functools import wraps
 
-from ..base import CloudProtocol
+from yadisk.exceptions import YaDiskConnectionError
+from yadisk.exceptions import RequestTimeoutError
+from yadisk.exceptions import PathNotFoundError
+from yadisk.exceptions import UnauthorizedError
+
+from .errors import YandexException
+from .errors import YandexError
+
 from .models import YandexAuth
+from ..base import CloudProtocol
+from ...models.settings import CloudObj
 from ...utils.other import generate_new_name
 
 
-def catch_api_error(func: Callable):
+def yandex_api_error(func: Callable):
     """A decorator that catches errors from the
       Dropbox api and prints them to the user
 
@@ -20,37 +29,66 @@ def catch_api_error(func: Callable):
 
     @wraps(func)
     def inner(*args, **kwargs):
-        pass
+        try:
+            return func(*args, **kwargs)
+        except YaDiskConnectionError:
+            raise YandexException(*YandexError.connection_error)
+        except RequestTimeoutError:
+            raise YandexException(*YandexError.timed_out_error)
+        except PathNotFoundError:
+            raise YandexException(*YandexError.path_not_found_error)
+        except UnauthorizedError:
+            raise YandexException(*YandexError.invalid_token_error)
+        except Exception as er:
+            title, message = YandexError.uknown_error
+            raise YandexException(title.format(er), message.format(er))
 
     return inner
 
 
 class YandexCloud(CloudProtocol):
+    @yandex_api_error
     def __init__(self, auth: YandexAuth, main_folder: Path):
         self._main_folder = main_folder
         self._auth = auth
-
         self._app = Client(auth.client_id, auth.client_secret, auth.token)
 
+        if not self._app.check_token():
+            raise UnauthorizedError()
+
+    @yandex_api_error
     def download_file(self, path: Path, local_path: Path) -> None:
         self._app.download(str(path), str(local_path))
 
+    @yandex_api_error
     def upload_file(self, local_path: Path, path: Path) -> str:
         filename = os.path.basename(path)
-        self.get_all_files(path.parent)
         files = [file.name for file in self.get_all_files(path.parent)]
         if filename in files:
-            filename = generate_new_name(busy=files, default=filename)
+            filename = generate_new_name(
+                busy=[file.name for file in files], default=filename
+            )
         self._app.upload(str(local_path), str(path))
 
         return filename
 
-    def get_all_files(self, remote_path: Path) -> list:
-        return list(self._app.listdir(str(remote_path)))
+    @yandex_api_error
+    def get_all_files(self, remote_path: Path) -> list[CloudObj]:
+        return [
+            CloudObj(
+                name=file.name,
+                size=file.size,
+                is_directory=file.media_type == "folder",
+                modifed=file.modified,
+            )
+            for file in self._app.listdir(str(remote_path))
+        ]
 
+    @yandex_api_error
     def remove_file(self, path: Path) -> None:
         self._app.remove(str(path))
 
+    @yandex_api_error
     def info(self, path: Path) -> dict:
         metadata = self._app.get_meta(str(path))
         return {
