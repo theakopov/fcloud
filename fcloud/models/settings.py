@@ -9,3 +9,11 @@ class Config:
     service: Driver
     main_folder: Path
     cfl_extension: str
+
+
+@dataclass
+class CloudObj:
+    name: str
+    size: int
+    is_directory: bool
+    modifed: str

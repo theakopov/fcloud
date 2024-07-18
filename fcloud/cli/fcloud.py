@@ -5,11 +5,11 @@ from textwrap import dedent
 from typing import Optional
 
 from prettytable import PrettyTable
-from dropbox.files import FileMetadata
-from dropbox.files import FolderMetadata
 
 from ..models.driver import T
 from ..models.settings import Config as _Config
+from ..models.settings import CloudObj
+
 from .protocol import FcloudProtocol
 from .protocol import SomeStr
 
@@ -230,16 +230,14 @@ class Fcloud(FcloudProtocol):
         files_table = PrettyTable(
             columns, encoding="utf-8", title=f"Files in {remote_path}"
         )
-        files: list[FileMetadata | FolderMetadata] = self._driver.get_all_files(
-            remote_path
-        )
+        files: list[CloudObj] = self._driver.get_all_files(remote_path)
 
         for file in files:
-            if isinstance(file, FileMetadata) and only_files:
-                files_table.add_row([file.name, file.size, file.server_modified])
-            elif isinstance(file, FileMetadata):
-                files_table.add_row([file.name, file.size, False, file.server_modified])
-            elif isinstance(file, FolderMetadata) and not only_files:
+            if not file.is_directory and only_files:
+                files_table.add_row([file.name, file.size, file.modifed])
+            elif not file.is_directory:
+                files_table.add_row([file.name, file.size, False, file.modifed])
+            elif file.is_directory and not only_files:
                 files_table.add_row([file.name, None, True, None])
 
         return files_table
