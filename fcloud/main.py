@@ -16,7 +16,7 @@ from .drivers.yandex.yandex import YandexCloud
 from .drivers.yandex.models import YandexAuth
 
 
-@catch_error
+@catch_error(debug="--debug" in sys.argv)
 def main():
     if os.environ.get(env := "FCLOUD_CONFIG_PATH") is None:
         path = Path(os.path.abspath(__file__)).parent / Path(".conf")

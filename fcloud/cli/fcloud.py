@@ -1,4 +1,5 @@
 import os
+import fire
 import contextlib
 from pathlib import Path
 from textwrap import dedent
@@ -64,15 +65,18 @@ class Fcloud(FcloudProtocol):
         self._main_folder: Path = config.main_folder
         self._cfl_extension = config.cfl_extension
 
-    def __call__(self):
+    def __call__(self, *args, **kwargs):
+        if args or kwargs:
+            fire.Fire(object, name="fcloud")
+
         print(
             dedent("""\
-             _____   ____  _       ___   _   _  ____  
-            |  ___| / ___|| |     / _ \ | | | ||  _ \ 
-            | |_   | |    | |    | | | || | | || | | |
-            |  _|  | |___ | |___ | |_| || |_| || |_| |
-            |_|     \____||_____| \___/  \___/ |____/                                   
-            """)
+                 _____   ____  _       ___   _   _  ____  
+                |  ___| / ___|| |     / _ \ | | | ||  _ \ 
+                | |_   | |    | |    | | | || | | || | | |
+                |  _|  | |___ | |___ | |_| || |_| || |_| |
+                |_|     \____||_____| \___/  \___/ |____/                                   
+                """)
         )
 
     def _to_path(self, path: SomeStr) -> Path:

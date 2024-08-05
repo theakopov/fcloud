@@ -130,7 +130,6 @@ class DropboxCloud(CloudProtocol):
                         modifed=None,
                     )
                 )
-        print(files)
         return files
 
     @dropbox_api_error
