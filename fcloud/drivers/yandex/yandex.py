@@ -17,6 +17,7 @@ from .models import YandexAuth
 from ..base import CloudProtocol
 from ...models.settings import CloudObj
 from ...utils.other import generate_new_name
+from ...exceptions.file_errors import FileError
 
 
 def yandex_api_error(func: Callable):
@@ -39,6 +40,10 @@ def yandex_api_error(func: Callable):
             raise YandexException(*YandexError.path_not_found_error)
         except UnauthorizedError:
             raise YandexException(*YandexError.invalid_token_error)
+        except FileNotFoundError:
+            raise YandexException(*FileError.not_exists_error)
+        except PermissionError:
+            raise YandexException(*FileError.perrmission_denied)
         except Exception as er:
             title, message = YandexError.uknown_error
             raise YandexException(title.format(er), message.format(er))
@@ -65,10 +70,8 @@ class YandexCloud(CloudProtocol):
         filename = os.path.basename(path)
         files = [file.name for file in self.get_all_files(path.parent)]
         if filename in files:
-            filename = generate_new_name(
-                busy=[file.name for file in files], default=filename
-            )
-        self._app.upload(str(local_path), str(path))
+            filename = generate_new_name(files, filename)
+        self._app.upload(str(local_path), str(path.parent) + filename)
 
         return filename
 
