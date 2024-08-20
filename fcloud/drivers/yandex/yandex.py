@@ -59,7 +59,7 @@ class YandexCloud(CloudProtocol):
         self._app = Client(auth.client_id, auth.client_secret, auth.token)
 
         if not self._app.check_token():
-            raise UnauthorizedError()
+            raise UnauthorizedError
 
     @yandex_api_error
     def download_file(self, path: Path, local_path: Path) -> None:
@@ -68,6 +68,8 @@ class YandexCloud(CloudProtocol):
     @yandex_api_error
     def upload_file(self, local_path: Path, path: Path) -> str:
         filename = os.path.basename(path)
+        if not self._app.exists(str(path)):
+            raise PathNotFoundError
         files = [file.name for file in self.get_all_files(path.parent)]
         if filename in files:
             filename = generate_new_name(files, filename)

@@ -15,7 +15,7 @@ class YandexError(DriverError):
 
     path_not_found_error = (
         "Resource not found",
-        """The requested resource was not found. This folder or file probably does not exist""",
+        "The requested resource (file or folder) was not found in the cloud.",
     )
 
     invalid_token_error = (
