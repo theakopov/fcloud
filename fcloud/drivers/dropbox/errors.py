@@ -52,6 +52,11 @@ class DropboxError(DriverError):
         """Some of the data did not pass the api check. More details: {}""",
     )
 
+    path_not_found_error = (
+        "Resource not found",
+        "The requested resource (file or folder) was not found in the cloud.",
+    )
+
 
 class DropboxException(DriverException):
     pass

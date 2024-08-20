@@ -4,6 +4,7 @@ from typing import Callable
 from functools import wraps
 
 import dropbox
+from dropbox.dropbox_client import BadInputException
 from dropbox.files import UploadSessionCursor
 from dropbox.files import CommitInfo
 from dropbox.files import Metadata
@@ -11,7 +12,6 @@ from dropbox.files import FileMetadata
 from dropbox.files import FolderMetadata
 from dropbox.exceptions import AuthError
 from dropbox.exceptions import BadInputError
-from dropbox.dropbox_client import BadInputException
 from dropbox.exceptions import ApiError
 from dropbox.exceptions import HttpError
 from requests.exceptions import ProxyError
@@ -91,8 +91,12 @@ class DropboxCloud(CloudProtocol):
 
     @dropbox_api_error
     def upload_file(self, local_path: Path, path: Path) -> str:
-        filename = os.path.basename(path)
+        try:
+            self.app.files_get_metadata(str(path))
+        except ApiError:
+            raise ApiError(*DropboxError.path_not_found_error, None, None)
 
+        filename = os.path.basename(path)
         files = [file.name for file in self.get_all_files(path.parent)]
         if filename in files:
             filename = generate_new_name(busy=files, default=filename)
