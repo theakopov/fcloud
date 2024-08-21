@@ -68,12 +68,12 @@ class YandexCloud(CloudProtocol):
     @yandex_api_error
     def upload_file(self, local_path: Path, path: Path) -> str:
         filename = os.path.basename(path)
-        if not self._app.exists(str(path)):
+        if not self._app.exists(str(path.parent)):
             raise PathNotFoundError
         files = [file.name for file in self.get_all_files(path.parent)]
         if filename in files:
             filename = generate_new_name(files, filename)
-        self._app.upload(str(local_path), str(path.parent) + filename)
+        self._app.upload(str(local_path), str(path.parent / Path(filename)))
 
         return filename
 
