@@ -18,6 +18,9 @@ nav:
     - Dropbox:
       - Connect: clouds/dropbox/connect.md
       - Troubleshooting: clouds/dropbox/errors.md
+    - Yandex:
+      - Connect: clouds/yandex/connect.md
+      - Troubleshooting: clouds/yandex/errors.md
 
 markdown_extensions:
   - admonition
