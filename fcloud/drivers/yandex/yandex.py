@@ -73,7 +73,7 @@ class YandexCloud(CloudProtocol):
         files = [file.name for file in self.get_all_files(path.parent)]
         if filename in files:
             filename = generate_new_name(files, filename)
-        self._app.upload(str(local_path), str(path.parent / Path(filename)))
+        self._app.upload(str(local_path), str(path.parent.joinpath(filename)))
 
         return filename
 
