@@ -9,6 +9,7 @@ from yadisk.exceptions import YaDiskConnectionError
 from yadisk.exceptions import RequestTimeoutError
 from yadisk.exceptions import PathNotFoundError
 from yadisk.exceptions import UnauthorizedError
+from yadisk.exceptions import ForbiddenError
 
 from .errors import YandexException
 from .errors import YandexError
@@ -40,6 +41,8 @@ def yandex_api_error(func: Callable):
             raise YandexException(*YandexError.path_not_found_error)
         except UnauthorizedError:
             raise YandexException(*YandexError.invalid_token_error)
+        except ForbiddenError:
+            raise YandexException(*YandexError.access_denied)
         except FileNotFoundError:
             raise YandexException(*FileError.not_exists_error)
         except PermissionError:
