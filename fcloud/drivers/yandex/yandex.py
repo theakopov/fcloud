@@ -86,7 +86,7 @@ class YandexCloud(CloudProtocol):
             CloudObj(
                 name=file.name,
                 size=file.size,
-                is_directory=file.media_type == "folder",
+                is_directory=file.type == "dir",
                 modifed=file.modified,
             )
             for file in self._app.listdir(str(remote_path))
