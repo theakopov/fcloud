@@ -66,17 +66,19 @@ class YandexCloud(CloudProtocol):
 
     @yandex_api_error
     def download_file(self, path: Path, local_path: Path) -> None:
-        self._app.download(str(path), str(local_path))
+        self._app.download(path.as_posix(), local_path.as_posix())
 
     @yandex_api_error
     def upload_file(self, local_path: Path, path: Path) -> str:
         filename = os.path.basename(path)
-        if not self._app.exists(str(path.parent)):
+        if not self._app.exists(path.parent.as_posix()):
             raise PathNotFoundError
         files = [file.name for file in self.get_all_files(path.parent)]
         if filename in files:
             filename = generate_new_name(files, filename)
-        self._app.upload(str(local_path), str(path.parent.joinpath(filename)))
+        self._app.upload(
+            local_path.as_posix(), path.parent.joinpath(filename).as_posix()
+        )
 
         return filename
 
@@ -89,16 +91,16 @@ class YandexCloud(CloudProtocol):
                 is_directory=file.type == "dir",
                 modifed=file.modified,
             )
-            for file in self._app.listdir(str(remote_path))
+            for file in self._app.listdir(remote_path.as_posix())
         ]
 
     @yandex_api_error
     def remove_file(self, path: Path) -> None:
-        self._app.remove(str(path))
+        self._app.remove(path.as_posix())
 
     @yandex_api_error
     def info(self, path: Path) -> dict:
-        metadata = self._app.get_meta(str(path))
+        metadata = self._app.get_meta(path.as_posix())
         return {
             "Path": metadata.path,
             "Size": f"{metadata.size} B",
