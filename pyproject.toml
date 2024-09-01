@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "fcloud"
-version = "0.9.5"
+version = "1.0.0"
 description = "Fcloud is a simple utility that makes it easy to work with the cloud."
 authors = ["artem <theakopov@proton.me>"]
 

@@ -4,7 +4,7 @@
   </h1>
   Fcloud is a simple utility that makes it easy to work with the cloud
 
-<img src=https://img.shields.io/badge/cli-app-blue> <img src=https://img.shields.io/badge/version-0.9.5-orange> <img src=https://img.shields.io/badge/simple-docs-green> <img src=https://img.shields.io/badge/language-python-yellow>
+<img src=https://img.shields.io/badge/cli-app-blue> <img src=https://img.shields.io/badge/version-1.0.0-orange> <img src=https://img.shields.io/badge/simple-docs-green> <img src=https://img.shields.io/badge/language-python-yellow>
 
 <img src="https://fcloud.tech/files/how_it_works.gif" alt="Fcloud in action" width="100%">
 </div>

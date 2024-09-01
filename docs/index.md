@@ -18,4 +18,7 @@ Fcloud is a simple utility that makes it easy to work with cloud storage. When s
 
 * Dropbox
 
+* YandexDisk
+
+
 ---
