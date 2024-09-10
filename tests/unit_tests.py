@@ -7,6 +7,8 @@ from fcloud.utils.cfl import create_cfl, delete_cfl
 from fcloud.utils.other import generate_new_name
 from fcloud.utils.config import get_field, edit_config
 from fcloud.cli.groups.config import Config
+from fcloud.exceptions.exceptions import FcloudException
+
 
 from .utils import Utils
 
@@ -63,7 +65,7 @@ def test_config_utils():
     flag = False
     try:
         get_field("some_parametr", section="SOME_SERVICE")
-    except SystemExit:
+    except FcloudException:
         flag = True
     assert flag
 
