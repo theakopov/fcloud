@@ -61,9 +61,6 @@ def test_get():
 
 @utils.catch
 def test_param_near():
-    from time import sleep
-
-    sleep(10)
     utils.create_cfl("--near")
     assert os.path.isfile(TMP_PATH)
     assert os.path.isfile(TMP_PATH + CFL_EX)
