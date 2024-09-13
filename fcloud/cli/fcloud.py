@@ -4,15 +4,15 @@ import contextlib
 from pathlib import Path
 from textwrap import dedent
 from typing import Optional
+from typing import Generic
+
 
 from prettytable import PrettyTable
 
 from ..models.driver import T
 from ..models.settings import Config as _Config
 from ..models.settings import CloudObj
-
-from .protocol import FcloudProtocol
-from .protocol import SomeStr
+from ..models.settings import UserArgument
 
 from ..utils.cfl import create_cfl
 from ..utils.cfl import delete_cfl
@@ -29,7 +29,7 @@ from ..exceptions.file_errors import FileError
 from ..exceptions.exceptions import FcloudException
 
 
-class Fcloud(FcloudProtocol):
+class Fcloud:
     """
     Fcloud is a simple utility that makes it easy to work with the cloud.
     When synchronising, your files remain on your system
@@ -39,8 +39,7 @@ class Fcloud(FcloudProtocol):
     def __init__(
         self,
         available_clouds: list[str],
-        config: Optional[_Config] = None,
-        with_driver: bool = True,
+        config: _Config | None,
     ):
         """
         Args:
@@ -55,13 +54,13 @@ class Fcloud(FcloudProtocol):
         self.dropbox = Dropbox()
         self.yandex = Yandex()
 
-        if not with_driver:
+        if config is None:
             return
 
         self._driver: CloudProtocol = config.service.driver(
             config.service.auth_model, config.main_folder
         )
-        self._auth: T = config.service.auth_model
+        self._auth: Generic[T] = config.service.auth_model
         self._main_folder: Path = config.main_folder
         self._cfl_extension = config.cfl_extension
 
@@ -79,86 +78,90 @@ class Fcloud(FcloudProtocol):
                 """)
         )
 
-    def _to_path(self, path: SomeStr) -> Path:
+    def _to_path(self, path: UserArgument) -> Path:
         return Path(str(path))
 
-    def _to_remote_path(self, path: SomeStr) -> Path:
+    def _to_remote_path(self, path: UserArgument | None) -> Path:
         return self._main_folder if path is None else self._to_path(path)
 
     @animation("Uploading")
     def add(
         self,
-        path: Path,
+        path: UserArgument,
         near: bool = False,
-        filename: Optional[str] = None,
-        remote_path: Optional[Path] = None,
+        filename: Optional[UserArgument] = None,
+        remote_path: Optional[UserArgument] = None,
     ) -> None:
         """Uploud file to cloud. More: https://fcloud.tech/docs/usage/commands/#add
         Args:
-            -p --path (Path): Local path to file
+            -p --path (UserArgument): Local path to file
             -n --near (bool, optional): Create cloud file link
               (cfl) near main file. Defaults to False.
-            -f --filename (str, optional): Under which name the
+            -f --filename (UserArgument, optional): Under which name the
               file will be saved in the cloud. Default is
               the name of the file on the local computer
-            -r --remote_path (Path, optional): The folder under
+            -r --remote_path (UserArgument, optional): The folder under
               which the file will be uploaded to the server.
               Defaults to main folder from config.
         """
-        p = Path(path := str(path))
-        remote_path = self._to_remote_path(remote_path)
+        lremote_path = self._to_remote_path(remote_path)
+        lpath = self._to_path(path)
 
-        if p.is_dir() and near:
+        if lpath.is_dir() and near:
             raise FcloudException(*CFLError.near_with_folder_error)
-        elif not os.path.exists(p):
+        elif not lpath.exists():
             raise FcloudException(*FileError.not_exists_error)
-        elif path[-len(self._cfl_extension) :] == self._cfl_extension:
+        elif str(lpath)[-len(self._cfl_extension) :] == self._cfl_extension:
             return
 
-        if p.is_dir():
-            for file in [x for x in p.rglob("*") if x.is_file()]:
+        if lpath.is_dir():
+            for file in [x for x in lpath.rglob("*") if x.is_file()]:
                 with contextlib.suppress(SystemExit):
                     self.add(
-                        file,
-                        remote_path=remote_path,
+                        str(file),
+                        remote_path=lremote_path,
                         without_animation=True,
                     )
             return
 
         if filename is None:
-            filename = Path(os.path.basename(p))
+            lfilename = Path(os.path.basename(lpath))
         else:
-            filename = Path(str(filename))
+            lfilename = Path(str(filename))
 
-        cloud_filename = self._driver.upload_file(p, remote_path / filename)
+        cloud_filename = self._driver.upload_file(lpath, lremote_path / lfilename)
 
-        create_cfl(path, cloud_filename, remote_path, self._cfl_extension, near)
+        create_cfl(lpath, cloud_filename, lremote_path, self._cfl_extension, near)
 
     @animation("Downloading")
-    def get(self, cfl: SomeStr, near: bool = False, remove_after: bool = True) -> None:
+    def get(
+        self,
+        cfl: UserArgument,
+        near: bool = False,
+        remove_after: bool = True,
+    ) -> None:
         """Get file from cloud. More: https://fcloud.tech/docs/usage/commands/#get
 
         Args:
-            -c --cfl (Path): File link to a file in the cloud,
+            -c --cfl (UserArgument): File link to a file in the cloud,
               generated using <fcloud add ...>
-            -n --near (bool, optiArgs:
-            -c --cfl (Path):  File-link path
-            -o --only_in_cloud (bool, optional): If true, will
-              not delete cfl. Defaults to False.onal): Downloads a file without
+            -n --near (bool, optional): Downloads a file without
               overwriting the link file. Defaults to False.
+            -o --only_in_cloud (bool, optional): If true, will
+              not delete cfl. Defaults to False)
             -r --remove-after (bool, Optional): Deletes the file
               in the cloud after downloading. Default to False
         """
-        cfl = self._to_path(cfl)
+        lcfl = self._to_path(cfl)
         cfl_ex = self._cfl_extension
 
-        if cfl.is_file():
-            path = read_cfl(cfl)
-        elif cfl.is_dir():
-            for file in [x for x in cfl.rglob("*") if x.is_file()]:
+        if lcfl.is_file():
+            path = read_cfl(lcfl)
+        elif lcfl.is_dir():
+            for file in [x for x in lcfl.rglob("*") if x.is_file()]:
                 with contextlib.suppress(SystemExit):
                     self.get(
-                        file,
+                        str(file),
                         remove_after=remove_after,
                         without_animation=True,
                     )
@@ -167,74 +170,75 @@ class Fcloud(FcloudProtocol):
             raise FcloudException(*CFLError.not_exists_cfl_error)
 
         if not near:
-            self._driver.download_file(path, cfl)
+            self._driver.download_file(path, lcfl)
 
-            if str(cfl).endswith(cfl_ex):
-                new_name = cfl.name[: -len(cfl_ex)] if -len(cfl_ex) != 0 else cfl.name
-                os.rename(cfl, cfl.parent / new_name)
+            if str(lcfl).endswith(cfl_ex):
+                new_name = lcfl.name[: -len(cfl_ex)] if -len(cfl_ex) != 0 else lcfl.name
+                os.rename(lcfl, lcfl.parent / new_name)
         else:
             remove_after = False
-            self._driver.download_file(path, cfl.parent / cfl.name[: -len(cfl_ex)])
+            self._driver.download_file(path, lcfl.parent / lcfl.name[: -len(cfl_ex)])
 
         if remove_after:
             self._driver.remove_file(path)
 
     @animation("Information collection")
-    def info(self, cfl: SomeStr) -> dict:
+    def info(self, cfl: UserArgument) -> dict:
         """Info about file. More: https://fcloud.tech/docs/usage/commands/#info
 
         Args:
-            -c --cfl (Path): File-link path
+            -c --cfl (UserArgument): File-link path
         """
-        path = self._to_path(cfl)
-        return self._driver.info(read_cfl(path))
+        lcfl = self._to_path(cfl)
+        return self._driver.info(read_cfl(lcfl))
 
-    def remove(self, cfl: SomeStr, only_in_cloud: bool = False) -> None:
+    def remove(self, cfl: UserArgument, only_in_cloud: bool = False) -> None:
         """Will delete a file in the cloud by cfl. More: https://fcloud.tech/docs/usage/commands/#remove
 
         Args:
-            -c --cfl (Path):  File-link path
+            -c --cfl (UserArgument):  File-link path
             -o --only_in_cloud (bool, optional): If true, will
               not delete cfl. Defaults to False.
         """
-        path = self._to_path(cfl)
+        lcfl = self._to_path(cfl)
 
-        if path.is_file():
-            remote_path = read_cfl(path)
+        if lcfl.is_file():
+            remote_path = read_cfl(lcfl)
             self._driver.remove_file(remote_path)
 
             if not only_in_cloud:
-                delete_cfl(cfl)
-        elif path.is_dir():
-            for file in (x for x in path.rglob("*") if x.is_file()):
+                delete_cfl(lcfl)
+        elif lcfl.is_dir():
+            for file in (x for x in lcfl.rglob("*") if x.is_file()):
                 with contextlib.suppress(SystemExit):
-                    self.remove(file, only_in_cloud=only_in_cloud)
+                    self.remove(str(file), only_in_cloud=only_in_cloud)
         else:
-            raise CFLError.not_exists_cfl_error
+            raise FcloudException(*CFLError.not_exists_cfl_error)
 
     @animation("Collecting files")
     def files(
-        self, remote_path: Optional[Path] = None, only_files: bool = False
+        self, remote_path: Optional[UserArgument] = None, only_files: bool = False
     ) -> PrettyTable:
         """Get info about all files. More: https://fcloud.tech/docs/usage/commands/#files
 
         Args:
-            -r --remote_path (Path, optional): You have the option
+            -r --remote_path (UserArgument, optional): You have the option
               of specifying a custom folder for file information.
               Defaults to None.
             -o --only_files (bool, optional): Display only files in
               the output, ignoring folders. Defaults to False.
         """
-        remote_path = self._to_remote_path(remote_path)
+        lremote_path = self._to_remote_path(remote_path)
+
         if not only_files:
             columns = ["Filename", "Size", "Is_directory", "Modified"]
         else:
             columns = ["Filename", "Size", "Modified"]
 
         files_table = PrettyTable(
-            columns, encoding="utf-8", title=f"Files in {remote_path}"
+            columns, encoding="utf-8", title=f"Files in {lremote_path}"
         )
-        files: list[CloudObj] = self._driver.get_all_files(remote_path)
+        files: list[CloudObj] = self._driver.get_all_files(lremote_path)
 
         for file in files:
             if not file.is_directory and only_files:

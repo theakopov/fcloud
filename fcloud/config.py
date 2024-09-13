@@ -22,7 +22,7 @@ def _service_validator(service: str, drivers: list[Driver]) -> str:
     return service
 
 
-def _main_folder_validator(main_folder: str) -> str:
+def _main_folder_validator(main_folder: str) -> Path:
     if not (main_folder.startswith("/") or main_folder.startswith("\\")):
         main_folder = "/" + main_folder
     folder = Path(main_folder).as_posix()
@@ -37,18 +37,18 @@ def _driver_init(service: str, drivers: list[Driver], initial_settings):
 
 def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
     if path is None:
-        path = os.environ.get("FCLOUD_CONFIG_PATH")
+        path = Path(os.environ.get("FCLOUD_CONFIG_PATH"))
 
     if not path.exists():
-        raise FcloudConfigException(ConfigError.config_not_found)
+        raise FcloudConfigException(*ConfigError.config_not_found)
 
     config = configparser.ConfigParser()
     config.read(path, encoding="utf-8")
 
     fields = {
-        "service": None,
-        "cfl_extension": None,
-        "main_folder": None,
+        "service": "",
+        "cfl_extension": "",
+        "main_folder": "",
     }
     for field in fields:
         title, message = ConfigError.field_error

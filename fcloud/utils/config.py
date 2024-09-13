@@ -9,10 +9,10 @@ from ..exceptions.exceptions import FcloudConfigException
 
 
 def edit_config(section: str, name: str, value: str) -> None:
-    path = os.environ.get("FCLOUD_CONFIG_PATH")
+    path = os.environ.get("FCLOUD_CONFIG_PATH")  # type: ignore
     config = configparser.ConfigParser()
     config.read(path)
-    config[str(section)][str(name)] = str(value)
+    config[section][name] = value
     try:
         with open(path, "w", encoding="utf-8") as configfile:
             config.write(configfile)
@@ -27,7 +27,7 @@ def get_field(
     error: tuple[str, str] = FcloudError.uknown_error,
     config: Optional[configparser.ConfigParser] = None,
     section: str = "FCLOUD",
-) -> str | dict | None:
+) -> str:
     if not config:
         path = os.environ.get("FCLOUD_CONFIG_PATH")
         config = configparser.ConfigParser()

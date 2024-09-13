@@ -45,7 +45,6 @@ def main():
     cli = Fcloud(
         available_clouds=[x.name for x in drivers],
         config=read_config(drivers, path) if with_driver else None,
-        with_driver=with_driver,
     )
 
     Fire(cli, name="fcloud")

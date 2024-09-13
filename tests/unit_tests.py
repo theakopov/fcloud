@@ -21,7 +21,7 @@ utils = Utils(TMP_DIR, TMP_PATH)
 @utils.catch
 def test_cfl_util():
     os.mknod(TMP_PATH)
-    create_cfl(TMP_PATH, "filename", Path("/main/folder"), ex := ".ex", False)
+    create_cfl(Path(TMP_PATH), "filename", Path("/main/folder"), ex := ".ex", False)
 
     assert os.path.isfile(TMP_PATH + ex)
     with open(TMP_PATH + ex, "r") as cfl:
@@ -34,7 +34,7 @@ def test_cfl_util():
 @utils.catch
 def test_cfl_util_near():
     os.mknod(TMP_PATH)
-    create_cfl(TMP_PATH, "filename", Path("/main/folder"), ex := ".ex", True)
+    create_cfl(Path(TMP_PATH), "filename", Path("/main/folder"), ex := ".ex", True)
 
     assert os.path.isfile(TMP_PATH + ex)
     assert os.path.isfile(TMP_PATH)

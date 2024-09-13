@@ -8,7 +8,7 @@ from ..exceptions.exceptions import FcloudException
 
 
 def create_cfl(
-    path: str, filename: str, main_folder: Path, cfl_extension: str, near: bool = True
+    path: Path, filename: str, main_folder: Path, cfl_extension: str, near: bool = True
 ) -> None:
     """Create CFL
 
@@ -21,9 +21,10 @@ def create_cfl(
           if False, it will overwrite the file. Defaults to True.
     """
     try:
+        new_path = str(path) + cfl_extension
         if not near:
-            os.rename(path, path + cfl_extension)
-        with open(path + cfl_extension, "w", encoding="utf-8") as cfl:
+            os.rename(path, new_path)
+        with open(new_path, "w", encoding="utf-8") as cfl:
             cfl.write(f"%cfl:{main_folder / filename}")
     except PermissionError:
         raise FcloudException(*FileError.perrmission_denied)

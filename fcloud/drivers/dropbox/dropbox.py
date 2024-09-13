@@ -17,7 +17,6 @@ from dropbox.exceptions import HttpError
 from requests.exceptions import ProxyError
 from stone.backends.python_rsrc.stone_validators import ValidationError
 
-
 from requests import ConnectionError
 
 from ...models.settings import CloudObj
