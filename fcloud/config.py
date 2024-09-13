@@ -8,6 +8,7 @@ from .exceptions.driver_errors import DriverError
 from .exceptions.exceptions import FcloudConfigException
 
 from .models.settings import Config
+from .models.settings import Fields
 from .models.driver import Driver
 
 from .utils.config import get_field
@@ -15,8 +16,7 @@ from .utils.config import get_section
 
 
 def _service_validator(service: str, drivers: list[Driver]) -> str:
-    service = service.lower()
-    if service not in [x.name for x in drivers]:
+    if service.lower() not in [x.name for x in drivers]:
         title, message = DriverError.driver_error
         raise FcloudConfigException(title, message.format(service))
     return service
@@ -29,12 +29,6 @@ def _main_folder_validator(main_folder: str) -> Path:
     return Path(folder)
 
 
-def _driver_init(service: str, drivers: list[Driver], initial_settings):
-    driver = [d for d in drivers if d.name == service][0]
-    driver.auth_model = driver.auth_model(**initial_settings)
-    return driver
-
-
 def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
     if path is None:
         path = Path(os.environ.get("FCLOUD_CONFIG_PATH"))
@@ -45,29 +39,27 @@ def read_config(drivers: list[Driver], path: Optional[Path] = None) -> Config:
     config = configparser.ConfigParser()
     config.read(path, encoding="utf-8")
 
-    fields = {
-        "service": "",
-        "cfl_extension": "",
-        "main_folder": "",
-    }
-    for field in fields:
+    fields = {}
+    for field in ("service", "main_folder", "cfl_extension"):
         title, message = ConfigError.field_error
-        message.format(field, os.environ["FCLOUD_CONFIG_PATH"])
-        fields[field] = get_field(field, (title, message), config)
+        fields[field] = get_field(field, (title, message.format(field, path)), config)
 
-    fields["service"] = _service_validator(fields["service"], drivers)
-    fields["main_folder"] = _main_folder_validator(fields["main_folder"])
+    fld = Fields(**fields)
+    fld.service = _service_validator(fld.service, drivers)
+    fld.main_folder = _main_folder_validator(fld.main_folder)
 
-    cloud_settings = get_section(
-        fields["service"].upper(), ConfigError.section_error, config
-    )
+    cloud_settings = get_section(fld.service, ConfigError.section_error, config)
 
-    for key, value in (fields | dict(cloud_settings)).items():
-        section = fields["service"] if key in cloud_settings else "FCLOUD"
+    for key, value in cloud_settings.items():
         if value == "" or value == ".":
             title, message = ConfigError.field_emty_error
-            raise FcloudConfigException(title.format(key), message.format(section, key))
+            raise FcloudConfigException(
+                title.format(key), message.format(fld.service, key)
+            )
 
-    fields["service"] = _driver_init(fields["service"], drivers, cloud_settings)
-
-    return Config(**fields)
+    return Config(
+        service=fld.service,
+        main_folder=fld.main_folder,
+        cfl_extension=fld.cfl_extension,
+        section_fields=dict(cloud_settings),
+    )

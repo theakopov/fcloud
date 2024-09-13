@@ -13,8 +13,16 @@ UserArgument = TypeVar("UserArgument", str, int, float)
 @dataclass(frozen=True)
 class Config:
     service: Driver
+    section_fields: dict[str, str]
     main_folder: Path
     cfl_extension: str
+
+
+@dataclass()
+class Fields:
+    service: str
+    cfl_extension: str
+    main_folder: Path
 
 
 @dataclass

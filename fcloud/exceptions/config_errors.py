@@ -29,3 +29,12 @@ class ConfigError(FileError):
         * Substitute the required value in place of <value>.
         """),
     )
+
+    section_error = (
+        "The cloud section is specified incorrectly",
+        dedent("""\
+        Check if you have followed all the instructions for setting up the cloud and
+        if there are any empty fields in the cloud section ('fcloud config read')? 
+        If so, they need to be filled in. Also, your configuration file may be corrupted
+        """),
+    )

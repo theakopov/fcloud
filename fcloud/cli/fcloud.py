@@ -10,6 +10,7 @@ from typing import Generic
 from prettytable import PrettyTable
 
 from ..models.driver import T
+from ..models.driver import Driver
 from ..models.settings import Config as _Config
 from ..models.settings import CloudObj
 from ..models.settings import UserArgument
@@ -26,6 +27,7 @@ from .groups.yandex import Yandex
 from ..drivers.base import CloudProtocol
 from ..exceptions.cfl_errors import CFLError
 from ..exceptions.file_errors import FileError
+from ..exceptions.config_errors import ConfigError
 from ..exceptions.exceptions import FcloudException
 
 
@@ -38,29 +40,33 @@ class Fcloud:
 
     def __init__(
         self,
-        available_clouds: list[str],
+        drivers: list[Driver],
         config: _Config | None,
     ):
         """
         Args:
-            available_clouds (list[str]): List of supported cloud storage
+            drivers (list[Driver]): List of supported cloud storage
             config (_Config, optional): Dataclass containing: service (driver name),
               main_folder, cloud authorization data, cfl_extension
             with_driver (bool, optional): Use when you need to connect to the cloud.
               For example, for tests, --help, etc., use False. The default value is True.
         """
         # init subcommands `fcloud config`, `fcloud dropbox` ...
-        self.config = Config(available_clouds)
+        self.config = Config([x.name for x in drivers])
         self.dropbox = Dropbox()
         self.yandex = Yandex()
 
         if config is None:
             return
 
-        self._driver: CloudProtocol = config.service.driver(
-            config.service.auth_model, config.main_folder
-        )
-        self._auth: Generic[T] = config.service.auth_model
+        service = [d for d in drivers if d.name == config.service][0]
+        try:
+            auth = service.auth_model(**config.section_fields)
+        except TypeError:
+            raise FcloudException(*ConfigError.section_error)
+
+        self._driver: CloudProtocol = service.driver(auth, config.main_folder)
+        self._auth: Generic[T] = auth
         self._main_folder: Path = config.main_folder
         self._cfl_extension = config.cfl_extension
 

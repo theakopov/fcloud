@@ -49,6 +49,6 @@ def get_section(
         config = configparser.ConfigParser()
         config.read(path)
     try:
-        return config[section]
+        return config[section.upper()]
     except KeyError:
         raise FcloudConfigException(*error)

@@ -42,9 +42,6 @@ def main():
     _help = "--help" in sys.argv
     with_driver = not (cmd in ["config", None, *[x.name for x in drivers]] or _help)
 
-    cli = Fcloud(
-        available_clouds=[x.name for x in drivers],
-        config=read_config(drivers, path) if with_driver else None,
-    )
+    cli = Fcloud(drivers, read_config(drivers, path) if with_driver else None)
 
     Fire(cli, name="fcloud")
